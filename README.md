@@ -1,16 +1,71 @@
-# React + Vite
+# Travel Agent
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern travel planning application built with React 19 and Vite, featuring a mobile-first responsive design for creating and managing travel itineraries.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** - Latest React with hooks and StrictMode
+- **Vite 7** - Fast build tool with Hot Module Replacement (HMR)
+- **React Router DOM 7** - Client-side routing
+- **CSS** - Custom responsive styling with mobile-first approach
+- **ESLint** - Code linting with React-specific rules
 
-## React Compiler
+## Project Structure
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+src/
+├── main.jsx              # Application entry point
+├── App.jsx               # Root component with routing
+├── components/           # Reusable components
+│   ├── Header.jsx
+│   └── Header.css
+└── pages/                # Route pages
+    ├── Home.jsx
+    ├── Home.css
+    ├── Planning.jsx
+    ├── Planning.css
+    ├── Results.jsx
+    └── Results.css
+```
 
-## Expanding the ESLint configuration
+## Development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Prerequisites
+- Node.js (latest LTS recommended)
+- npm
+
+### Getting Started
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Start development server:
+```bash
+npm run dev
+```
+
+3. Open your browser to the local development URL (typically http://localhost:5173)
+
+### Available Scripts
+
+- `npm run dev` - Start Vite development server with HMR
+- `npm run build` - Build optimized production bundle
+- `npm run lint` - Run ESLint on all files
+- `npm run preview` - Preview production build locally
+
+## Features
+
+- **Mobile-First Design** - Responsive layouts optimized for mobile devices with progressive enhancement for larger screens
+- **Fast Refresh** - Instant updates during development via @vitejs/plugin-react with Babel
+- **Modern Routing** - Declarative routing with React Router DOM
+- **Code Quality** - ESLint configuration with React Hooks and React Refresh rules
+
+## ESLint Configuration
+
+The project uses flat config format (`eslint.config.js`) with:
+- React Hooks plugin for enforcing hooks rules
+- React Refresh plugin for HMR compatibility
+- Custom rule allowing unused variables starting with uppercase or underscore
+- Automatic exclusion of `dist/` directory
