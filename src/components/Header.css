@@ -1,0 +1,96 @@
+/* Base Mobile Styles */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #e5ded7;
+  padding: 16px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.header-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 1404px;
+  margin: 0 auto;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(to bottom, #b5654d, #d4a574);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.logo-vector {
+  width: 20px;
+  height: 20px;
+}
+
+.logo-text {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 22px;
+  color: #2d2d2d;
+  font-weight: normal;
+  margin: 0;
+}
+
+/* Tablet and above */
+@media (min-width: 769px) {
+  .app-header {
+    padding: 16px 24px;
+  }
+
+  .logo-text {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo-vector {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .app-header {
+    padding: 20px 40px;
+  }
+
+  .logo-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .logo-vector {
+    width: 24px;
+    height: 24px;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    line-height: 28px;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1280px) {
+  .app-header {
+    padding: 20px 94px;
+  }
+}
