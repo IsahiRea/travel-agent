@@ -1,18 +1,13 @@
-// import OpenAI from 'openai';
-// import { createClient } from "@supabase/supabase-js";
+import OpenAI from 'openai';
 
-//TODO: Implement environment variable management for API keys
+/**
+ * API Configuration
+ * Note: Amadeus API is now called directly via fetch() in the flight API module
+ * to avoid browser compatibility issues with the amadeus-node SDK
+ */
 
 /** OpenAI config */
-// if (!process.env.OPENAI_API_KEY) throw new Error("OpenAI API key is missing or invalid.");
-// export const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY,
-//   dangerouslyAllowBrowser: true
-// });
-
-/** Supabase config */
-// const privateKey = process.env.SUPABASE_API_KEY;
-// if (!privateKey) throw new Error(`Expected env var SUPABASE_API_KEY`);
-// const url = process.env.SUPABASE_URL;
-// if (!url) throw new Error(`Expected env var SUPABASE_URL`);
-// export const supabase = createClient(url, privateKey);
+export const openai = import.meta.env.VITE_OPENAI_API_KEY ? new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true
+}) : null;

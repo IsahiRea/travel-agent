@@ -183,7 +183,8 @@ export default function Planning() {
                     type="text"
                     name="departFrom"
                     className="location-input"
-                    defaultValue={departFrom}
+                    value={departFrom}
+                    onChange={(e) => setDepartFrom(e.target.value)}
                     placeholder="Enter departure city"
                     required
                   />
@@ -210,7 +211,8 @@ export default function Planning() {
                     type="text"
                     name="arriveAt"
                     className="location-input"
-                    defaultValue={arriveAt}
+                    value={arriveAt}
+                    onChange={(e) => setArriveAt(e.target.value)}
                     placeholder="Enter arrival city"
                     required
                   />
