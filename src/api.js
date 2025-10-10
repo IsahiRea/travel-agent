@@ -1,6 +1,4 @@
 //TODO: Implement actual API calls and handle errors appropriately
-// src/api.js
-import { openai } from './config.js';
 
 /**
  * Fetch weather data, flight options, hotel availability,

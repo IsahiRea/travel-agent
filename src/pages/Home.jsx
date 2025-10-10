@@ -1,12 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
-
-const imgImageWithFallback = "https://www.figma.com/api/mcp/asset/2430ba0b-0d97-4074-bc62-8aeaee63a487";
-const imgIcon = "https://www.figma.com/api/mcp/asset/bb4c9b56-a39b-4d74-b712-c9842742510c";
-const imgIcon1 = "https://www.figma.com/api/mcp/asset/3c6e2b69-7d0c-4c16-8f44-e21ef147a1f0";
-const imgIcon2 = "https://www.figma.com/api/mcp/asset/9c34680a-0e04-42e6-9c80-be863f95d55e";
-const imgIcon3 = "https://www.figma.com/api/mcp/asset/9b50d72a-f852-4194-90f6-edc9d8bbe9e0";
-const imgIcon4 = "https://www.figma.com/api/mcp/asset/226e8e04-32d5-45f9-9e09-3bba160cb1e9";
+import imgImageWithFallback from '../assets/images/photos/hero-travel.jpg';
+import imgIcon from '../assets/images/icons/journey-badge.svg';
+import imgIcon1 from '../assets/images/icons/globe.svg';
+import imgIcon2 from '../assets/images/icons/flex-calendar.svg';
+import imgIcon3 from '../assets/images/icons/plane.svg';
+import imgIcon4 from '../assets/images/icons/dollar.svg';
 
 export default function Home() {
   const navigate = useNavigate();

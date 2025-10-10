@@ -269,6 +269,28 @@
   padding-left: 32px;
 }
 
+/* Form Messages */
+.form-message {
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  margin-top: 4px;
+}
+
+.error-message {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+}
+
+.success-message {
+  background-color: #efe;
+  border: 1px solid #cfc;
+  color: #3a3;
+}
+
 /* Submit Button */
 .submit-button {
   width: 100%;
@@ -285,12 +307,17 @@
   min-height: 48px;
 }
 
-.submit-button:hover {
+.submit-button:hover:not(:disabled) {
   opacity: 0.9;
 }
 
-.submit-button:active {
+.submit-button:active:not(:disabled) {
   transform: translateY(1px);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Larger Mobile / Small Tablet */
