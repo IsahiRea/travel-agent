@@ -1,39 +1,118 @@
-import { useState } from 'react';
+import { useState, useActionState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetchWeatherData, fetchFlightData, fetchHotelData, generateTripPlan } from '../api';
 import './Planning.css';
-
-const imgIconBack = "https://www.figma.com/api/mcp/asset/59adbe4d-a02a-4ca7-a52b-52647728cc69";
-const imgIconMinus = "https://www.figma.com/api/mcp/asset/4b7e8fd6-9424-41c3-843a-ec7b76d2b27e";
-const imgIconPlus = "https://www.figma.com/api/mcp/asset/030bdd0b-8c7d-439d-bb87-a2a772f53c87";
-const imgIconRoute = "https://www.figma.com/api/mcp/asset/d2168abf-8305-4ce8-a251-d35dc2e85bde";
-const imgIconLocation = "https://www.figma.com/api/mcp/asset/626b0c66-5e00-4ba5-aa75-4a965e7ad8b2";
-const imgIconSwap = "https://www.figma.com/api/mcp/asset/740af55e-cd6e-4175-8760-93ea30994a8b";
-const imgIconSwap2 = "https://www.figma.com/api/mcp/asset/b9cb29eb-5a8a-4b48-985f-4f1180f7323c";
-const imgIconCalendar = "https://www.figma.com/api/mcp/asset/84a0ded8-7ca8-4870-8369-15a5a59c01c0";
+import imgIconBack from '../assets/images/icons/back.svg';
+import imgIconMinus from '../assets/images/icons/minus.svg';
+import imgIconPlus from '../assets/images/icons/plus.svg';
+import imgIconRoute from '../assets/images/icons/route.svg';
+import imgIconLocation from '../assets/images/icons/location.svg';
+import imgIconSwap from '../assets/images/icons/swap.svg';
+import imgIconSwap2 from '../assets/images/icons/swap2.svg';
+import imgIconCalendar from '../assets/images/icons/calendar.svg';
 
 export default function Planning() {
   const navigate = useNavigate();
   const [travelers, setTravelers] = useState(1);
   const [departFrom, setDepartFrom] = useState('New York City');
   const [arriveAt, setArriveAt] = useState('Paris');
-  const [departDate, setDepartDate] = useState('');
-  const [returnDate, setReturnDate] = useState('');
-  const [budget, setBudget] = useState('5000');
 
   const handleIncrement = () => setTravelers(prev => prev + 1);
   const handleDecrement = () => setTravelers(prev => Math.max(1, prev - 1));
 
   const handleSwapLocations = () => {
-    const temp = departFrom;
     setDepartFrom(arriveAt);
-    setArriveAt(temp);
+    setArriveAt(departFrom);
   };
+  
+  const [state, actionFunction, isPending] = useActionState(
+    handleSubmission,
+    {
+      error: null,
+      message: null
+    }
+  );
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Planning trip with:', { travelers, departFrom, arriveAt, departDate, returnDate, budget });
-    navigate('/results');
-  };
+  async function handleSubmission(_prevState, formData) {
+    // Extract form data
+    const travelers = formData.get('travelers');
+    const departFrom = formData.get('departFrom');
+    const arriveAt = formData.get('arriveAt');
+    const departDate = formData.get('departDate');
+    const returnDate = formData.get('returnDate');
+    const budget = formData.get('budget');
+
+    // Validate form data
+    if (!departFrom || !arriveAt || !departDate || !returnDate || !budget) {
+      return {
+        error: 'Please fill in all required fields',
+        message: null
+      };
+    }
+
+    // Validate dates
+    const departDateTime = new Date(departDate);
+    const returnDateTime = new Date(returnDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (departDateTime < today) {
+      return {
+        error: 'Departure date cannot be in the past',
+        message: null
+      };
+    }
+
+    if (returnDateTime <= departDateTime) {
+      return {
+        error: 'Return date must be after departure date',
+        message: null
+      };
+    }
+
+    // Validate budget
+    if (Number(budget) <= 0) {
+      return {
+        error: 'Budget must be greater than 0',
+        message: null
+      };
+    }
+
+    try {
+      const tripData = {
+        travelers: Number(travelers),
+        departFrom,
+        arriveAt,
+        departDate,
+        returnDate,
+        budget: Number(budget)
+      };
+
+      const weatherData = await fetchWeatherData(tripData);
+      const flightData = await fetchFlightData(tripData);
+      const hotelData = await fetchHotelData(tripData);
+
+      const tripPlan = await generateTripPlan({
+        weather: weatherData,
+        flights: flightData,
+        hotels: hotelData,
+        tripData
+      });
+
+      navigate('/results', { state: { tripPlan } });
+
+      return {
+        error: null,
+        message: 'Trip plan generated successfully!'
+      };
+    } catch (error) {
+      console.error('Error generating trip plan:', error);
+      return {
+        error: 'Failed to generate trip plan. Please try again.',
+        message: null
+      };
+    }
+  }
 
   return (
     <div className="planning-page">
@@ -43,11 +122,23 @@ export default function Planning() {
       </button>
 
       <div className="planning-container">
-        <form className="trip-planner" onSubmit={handleSubmit}>
+        <form className="trip-planner" action={actionFunction}>
           <div className="header-section">
             <h1 className="planning-heading">Plan Your Trip</h1>
             <p className="planning-subtitle">Let's create your perfect journey</p>
           </div>
+
+          {state?.error && (
+            <div className="form-message error-message" role="alert">
+              {state.error}
+            </div>
+          )}
+
+          {state?.message && (
+            <div className="form-message success-message" role="status">
+              {state.message}
+            </div>
+          )}
 
           <div className="form-section">
             <label className="form-label">Number of Travelers</label>
@@ -61,6 +152,11 @@ export default function Planning() {
                 <img alt="" className="counter-icon" src={imgIconMinus} />
               </button>
               <div className="counter-value">{travelers}</div>
+              <input
+                type="hidden"
+                name="travelers"
+                value={travelers}
+              />
               <button
                 type="button"
                 className="counter-button"
@@ -85,10 +181,11 @@ export default function Planning() {
                   <img alt="" className="input-icon" src={imgIconLocation} />
                   <input
                     type="text"
+                    name="departFrom"
                     className="location-input"
-                    value={departFrom}
-                    onChange={(e) => setDepartFrom(e.target.value)}
+                    defaultValue={departFrom}
                     placeholder="Enter departure city"
+                    required
                   />
                 </div>
               </div>
@@ -111,10 +208,11 @@ export default function Planning() {
                   <img alt="" className="input-icon" src={imgIconLocation} />
                   <input
                     type="text"
+                    name="arriveAt"
                     className="location-input"
-                    value={arriveAt}
-                    onChange={(e) => setArriveAt(e.target.value)}
+                    defaultValue={arriveAt}
                     placeholder="Enter arrival city"
+                    required
                   />
                 </div>
               </div>
@@ -128,9 +226,9 @@ export default function Planning() {
                 <img alt="" className="input-icon" src={imgIconCalendar} />
                 <input
                   type="date"
+                  name="departDate"
                   className="date-input"
-                  value={departDate}
-                  onChange={(e) => setDepartDate(e.target.value)}
+                  required
                 />
               </div>
             </div>
@@ -141,9 +239,9 @@ export default function Planning() {
                 <img alt="" className="input-icon" src={imgIconCalendar} />
                 <input
                   type="date"
+                  name="returnDate"
                   className="date-input"
-                  value={returnDate}
-                  onChange={(e) => setReturnDate(e.target.value)}
+                  required
                 />
               </div>
             </div>
@@ -155,17 +253,17 @@ export default function Planning() {
               <span className="dollar-sign">$</span>
               <input
                 type="number"
+                name="budget"
                 className="budget-input"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
                 placeholder="Enter budget"
                 min="0"
+                required
               />
             </div>
           </div>
 
-          <button type="submit" className="submit-button">
-            Plan my Trip!
+          <button type="submit" className="submit-button" disabled={isPending}>
+            {isPending ? "Planning..." : "Plan my Trip!"}
           </button>
         </form>
       </div>
