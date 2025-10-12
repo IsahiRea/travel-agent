@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import './Results.css';
 import imgHeroEiffel from '../assets/images/photos/hero-eiffel.jpg';
 import imgFlightWing from '../assets/images/photos/flight-wing.jpg';
@@ -12,6 +13,37 @@ const imgIconLocation = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000
 
 export default function Results() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Note: These will be used for dynamic rendering in future - prefixed with _ for ESLint
+  const [_tripData, _setTripData] = useState(null);
+  const [_tripPlan, _setTripPlan] = useState(null);
+
+  useEffect(() => {
+    // Try to load trip data from sessionStorage first (optimized approach)
+    try {
+      const storedTripData = sessionStorage.getItem('tripData');
+      const storedTripPlan = sessionStorage.getItem('tripPlan');
+
+      if (storedTripData && storedTripPlan) {
+        _setTripData(JSON.parse(storedTripData));
+        _setTripPlan(JSON.parse(storedTripPlan));
+        return;
+      }
+    } catch (error) {
+      console.warn('Failed to read from sessionStorage:', error);
+    }
+
+    // Fallback to navigation state (backward compatibility)
+    if (location.state?.tripData && location.state?.tripPlan) {
+      _setTripData(location.state.tripData);
+      _setTripPlan(location.state.tripPlan);
+      return;
+    }
+
+    // If no data available, redirect to planning page
+    console.warn('No trip data found, redirecting to planning page');
+    navigate('/planning');
+  }, [location, navigate]);
 
   return (
     <div className="results-page">

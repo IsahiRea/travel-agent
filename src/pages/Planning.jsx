@@ -2,14 +2,17 @@ import { useState, useActionState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchWeatherData, fetchFlightData, fetchHotelData, generateTripPlan } from '../api';
 import './Planning.css';
-import imgIconBack from '../assets/images/icons/back.svg';
-import imgIconMinus from '../assets/images/icons/minus.svg';
-import imgIconPlus from '../assets/images/icons/plus.svg';
-import imgIconRoute from '../assets/images/icons/route.svg';
-import imgIconLocation from '../assets/images/icons/location.svg';
-import imgIconSwap from '../assets/images/icons/swap.svg';
-import imgIconSwap2 from '../assets/images/icons/swap2.svg';
-import imgIconCalendar from '../assets/images/icons/calendar.svg';
+
+// Lazy load SVG icons to reduce initial bundle size
+// Vite will handle these efficiently and they'll be included in the Planning chunk
+const imgIconBack = new URL('../assets/images/icons/back.svg', import.meta.url).href;
+const imgIconMinus = new URL('../assets/images/icons/minus.svg', import.meta.url).href;
+const imgIconPlus = new URL('../assets/images/icons/plus.svg', import.meta.url).href;
+const imgIconRoute = new URL('../assets/images/icons/route.svg', import.meta.url).href;
+const imgIconLocation = new URL('../assets/images/icons/location.svg', import.meta.url).href;
+const imgIconSwap = new URL('../assets/images/icons/swap.svg', import.meta.url).href;
+const imgIconSwap2 = new URL('../assets/images/icons/swap2.svg', import.meta.url).href;
+const imgIconCalendar = new URL('../assets/images/icons/calendar.svg', import.meta.url).href;
 
 export default function Planning() {
   const navigate = useNavigate();
@@ -88,10 +91,42 @@ export default function Planning() {
         budget: Number(budget)
       };
 
-      const weatherData = await fetchWeatherData(tripData);
-      const flightData = await fetchFlightData(tripData);
-      const hotelData = await fetchHotelData(tripData);
+      console.log('Fetching trip data for:', tripData);
 
+      // Fetch all API data in parallel using Promise.all for better performance
+      const [weatherData, flightData, hotelData] = await Promise.all([
+        fetchWeatherData(tripData),
+        fetchFlightData(tripData),
+        fetchHotelData(tripData)
+      ]);
+
+      console.log('All API data fetched successfully');
+      console.log('Weather:', weatherData?.success ? 'Success' : 'Failed');
+      console.log('Flights:', flightData?.success ? `${flightData.count} found` : 'Failed');
+      console.log('Hotels:', hotelData?.success ? `${hotelData.count} found` : 'Failed');
+
+      // Validate that we have the necessary data
+      if (!weatherData || !flightData || !hotelData) {
+        throw new Error('Failed to fetch required trip data');
+      }
+
+      // Check if any API returned no results
+      const hasFlights = flightData.flights && flightData.flights.length > 0;
+      const hasHotels = hotelData.hotels && hotelData.hotels.length > 0;
+
+      if (!hasFlights || !hasHotels) {
+        const missingData = [];
+        if (!hasFlights) missingData.push('flights');
+        if (!hasHotels) missingData.push('hotels');
+
+        return {
+          error: `No ${missingData.join(' or ')} available for the selected criteria. Please try different dates or destinations.`,
+          message: null
+        };
+      }
+
+      // Generate comprehensive trip plan with all collected data
+      console.log('Generating trip plan with AI...');
       const tripPlan = await generateTripPlan({
         weather: weatherData,
         flights: flightData,
@@ -99,7 +134,30 @@ export default function Planning() {
         tripData
       });
 
-      navigate('/results', { state: { tripPlan } });
+      console.log('Trip plan generated successfully');
+
+      // Store trip data in sessionStorage to avoid large navigation state payload
+      // This improves performance and memory usage
+      try {
+        sessionStorage.setItem('tripPlan', JSON.stringify(tripPlan));
+        sessionStorage.setItem('tripData', JSON.stringify(tripData));
+      } catch (storageError) {
+        console.warn('Failed to store trip data in sessionStorage:', storageError);
+        // Fallback to navigation state if sessionStorage fails
+        navigate('/results', {
+          state: {
+            tripPlan,
+            tripData
+          }
+        });
+        return {
+          error: null,
+          message: 'Trip plan generated successfully!'
+        };
+      }
+
+      // Navigate to results page (data will be read from sessionStorage)
+      navigate('/results');
 
       return {
         error: null,
@@ -107,8 +165,12 @@ export default function Planning() {
       };
     } catch (error) {
       console.error('Error generating trip plan:', error);
+
+      // Provide more specific error messages
+      const errorMessage = error.message || 'Failed to generate trip plan. Please try again.';
+
       return {
-        error: 'Failed to generate trip plan. Please try again.',
+        error: errorMessage,
         message: null
       };
     }
@@ -183,7 +245,8 @@ export default function Planning() {
                     type="text"
                     name="departFrom"
                     className="location-input"
-                    defaultValue={departFrom}
+                    value={departFrom}
+                    onChange={(e) => setDepartFrom(e.target.value)}
                     placeholder="Enter departure city"
                     required
                   />
@@ -210,7 +273,8 @@ export default function Planning() {
                     type="text"
                     name="arriveAt"
                     className="location-input"
-                    defaultValue={arriveAt}
+                    value={arriveAt}
+                    onChange={(e) => setArriveAt(e.target.value)}
                     placeholder="Enter arrival city"
                     required
                   />
