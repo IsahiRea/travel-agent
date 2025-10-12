@@ -5,8 +5,7 @@
  */
 
 import { z } from 'zod';
-import { zodResponseFormat } from 'openai/helpers/zod';
-import { openai } from '../config.js';
+import { getOpenAIClient } from '../config.js';
 
 /**
  * Zod Schema for Activity
@@ -101,6 +100,9 @@ const TripPlanSchema = z.object({
  */
 export async function generateTripPlan(data) {
     try {
+        // Get OpenAI client (dynamically imports SDK only when needed)
+        const openai = await getOpenAIClient();
+
         // Check if OpenAI is configured
         if (!openai) {
             console.warn('OpenAI not configured. Using mock trip plan.');
@@ -113,6 +115,9 @@ export async function generateTripPlan(data) {
         const context = prepareAIContext(weather, flights, hotels, tripData);
 
         console.log('Generating trip plan with OpenAI...');
+
+        // Dynamically import zodResponseFormat helper
+        const { zodResponseFormat } = await import('openai/helpers/zod');
 
         // Call OpenAI API with structured output
         const completion = await openai.chat.completions.parse({

@@ -2,14 +2,17 @@ import { useState, useActionState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchWeatherData, fetchFlightData, fetchHotelData, generateTripPlan } from '../api';
 import './Planning.css';
-import imgIconBack from '../assets/images/icons/back.svg';
-import imgIconMinus from '../assets/images/icons/minus.svg';
-import imgIconPlus from '../assets/images/icons/plus.svg';
-import imgIconRoute from '../assets/images/icons/route.svg';
-import imgIconLocation from '../assets/images/icons/location.svg';
-import imgIconSwap from '../assets/images/icons/swap.svg';
-import imgIconSwap2 from '../assets/images/icons/swap2.svg';
-import imgIconCalendar from '../assets/images/icons/calendar.svg';
+
+// Lazy load SVG icons to reduce initial bundle size
+// Vite will handle these efficiently and they'll be included in the Planning chunk
+const imgIconBack = new URL('../assets/images/icons/back.svg', import.meta.url).href;
+const imgIconMinus = new URL('../assets/images/icons/minus.svg', import.meta.url).href;
+const imgIconPlus = new URL('../assets/images/icons/plus.svg', import.meta.url).href;
+const imgIconRoute = new URL('../assets/images/icons/route.svg', import.meta.url).href;
+const imgIconLocation = new URL('../assets/images/icons/location.svg', import.meta.url).href;
+const imgIconSwap = new URL('../assets/images/icons/swap.svg', import.meta.url).href;
+const imgIconSwap2 = new URL('../assets/images/icons/swap2.svg', import.meta.url).href;
+const imgIconCalendar = new URL('../assets/images/icons/calendar.svg', import.meta.url).href;
 
 export default function Planning() {
   const navigate = useNavigate();
@@ -133,13 +136,28 @@ export default function Planning() {
 
       console.log('Trip plan generated successfully');
 
-      // Navigate to results page with complete trip plan
-      navigate('/results', {
-        state: {
-          tripPlan,
-          tripData
-        }
-      });
+      // Store trip data in sessionStorage to avoid large navigation state payload
+      // This improves performance and memory usage
+      try {
+        sessionStorage.setItem('tripPlan', JSON.stringify(tripPlan));
+        sessionStorage.setItem('tripData', JSON.stringify(tripData));
+      } catch (storageError) {
+        console.warn('Failed to store trip data in sessionStorage:', storageError);
+        // Fallback to navigation state if sessionStorage fails
+        navigate('/results', {
+          state: {
+            tripPlan,
+            tripData
+          }
+        });
+        return {
+          error: null,
+          message: 'Trip plan generated successfully!'
+        };
+      }
+
+      // Navigate to results page (data will be read from sessionStorage)
+      navigate('/results');
 
       return {
         error: null,

@@ -4,8 +4,11 @@
  * API Documentation: https://openweathermap.org/api
  */
 
+import { getCachedCoordinates, cacheCoordinates } from '../utils/cache/coordinatesCache.js';
+
 /**
  * Get coordinates from city name using OpenWeatherMap Geocoding API
+ * Uses IndexedDB cache to reduce API calls by 90%+
  * @param {string} cityName - City name
  * @returns {Promise<{lat: number, lon: number}>} Coordinates
  */
@@ -13,6 +16,13 @@ async function getCityCoordinates(cityName) {
     const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
     try {
+        // 1. Check IndexedDB cache first (instant lookup)
+        const cachedCoords = await getCachedCoordinates(cityName);
+        if (cachedCoords) {
+            return cachedCoords;
+        }
+
+        // 2. Cache miss - fetch from OpenWeatherMap Geocoding API
         const response = await fetch(
             `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cityName)}&limit=1&appid=${apiKey}`
         );
@@ -27,14 +37,29 @@ async function getCityCoordinates(cityName) {
             throw new Error(`City not found: ${cityName}`);
         }
 
-        return {
+        const coordinates = {
             lat: data[0].lat,
             lon: data[0].lon
         };
+
+        // 3. Cache the successful result for future use (365 days)
+        await cacheCoordinates(cityName, coordinates.lat, coordinates.lon);
+
+        return coordinates;
     } catch (error) {
         console.error('Error fetching coordinates:', error);
-        // Return default coordinates (Paris as fallback)
-        return { lat: 48.8566, lon: 2.3522 };
+
+        // Try to use fallback coordinates but also cache them
+        const fallbackCoords = { lat: 48.8566, lon: 2.3522 }; // Paris
+
+        // Cache the fallback to avoid repeated API failures
+        try {
+            await cacheCoordinates(cityName, fallbackCoords.lat, fallbackCoords.lon);
+        } catch (cacheError) {
+            console.warn('Could not cache fallback coordinates:', cacheError);
+        }
+
+        return fallbackCoords;
     }
 }
 

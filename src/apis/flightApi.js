@@ -4,34 +4,8 @@
  * API Documentation: https://developers.amadeus.com/
  */
 
-/**
- * Get Amadeus OAuth access token
- * @returns {Promise<string>} Access token
- */
-async function getAmadeusAccessToken() {
-    const apiKey = import.meta.env.VITE_AMADEUS_API_KEY;
-    const apiSecret = import.meta.env.VITE_AMADEUS_API_SECRET;
-
-    const params = new URLSearchParams();
-    params.append('grant_type', 'client_credentials');
-    params.append('client_id', apiKey);
-    params.append('client_secret', apiSecret);
-
-    const response = await fetch('https://test.api.amadeus.com/v1/security/oauth2/token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: params
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to authenticate with Amadeus API');
-    }
-
-    const data = await response.json();
-    return data.access_token;
-}
+import { getAmadeusAccessToken } from '../utils/tokenCache.js';
+import { getCachedAirportCode, cacheAirportCode } from '../utils/cache/airportCache.js';
 
 /**
  * Fetch flight data from Amadeus API
@@ -208,7 +182,7 @@ function transformItinerary(itinerary) {
 }
 
 /**
- * Get IATA airport code from city name using Amadeus Airport & City Search API
+ * Get IATA airport code from city name with IndexedDB caching
  * @param {string} cityName - City name or airport code
  * @param {string} accessToken - Amadeus API access token
  * @returns {Promise<string>} IATA airport code
@@ -222,7 +196,13 @@ async function getAirportCode(cityName, accessToken) {
             return normalized.toUpperCase();
         }
 
-        // Call Amadeus Airport & City Search API
+        // 1. Try IndexedDB cache first (instant lookup)
+        const cachedCode = await getCachedAirportCode(normalized);
+        if (cachedCode) {
+            return cachedCode;
+        }
+
+        // 2. Cache miss - fetch from Amadeus API
         const params = new URLSearchParams({
             subType: 'AIRPORT,CITY',
             keyword: normalized
@@ -241,7 +221,10 @@ async function getAirportCode(cityName, accessToken) {
 
         if (!response.ok) {
             console.warn(`Airport search failed for "${cityName}". Using fallback.`);
-            return getFallbackAirportCode(cityName);
+            const fallbackCode = getFallbackAirportCode(cityName);
+            // Cache fallback result to avoid repeated API failures
+            await cacheAirportCode(normalized, fallbackCode);
+            return fallbackCode;
         }
 
         const data = await response.json();
@@ -249,7 +232,9 @@ async function getAirportCode(cityName, accessToken) {
         // Handle empty results
         if (!data.data || data.data.length === 0) {
             console.warn(`No airports found for "${cityName}". Using fallback.`);
-            return getFallbackAirportCode(cityName);
+            const fallbackCode = getFallbackAirportCode(cityName);
+            await cacheAirportCode(normalized, fallbackCode);
+            return fallbackCode;
         }
 
         // Prioritize AIRPORT subType, fall back to CITY
@@ -257,10 +242,16 @@ async function getAirportCode(cityName, accessToken) {
 
         if (!airport.iataCode) {
             console.warn(`No IATA code found for "${cityName}". Using fallback.`);
-            return getFallbackAirportCode(cityName);
+            const fallbackCode = getFallbackAirportCode(cityName);
+            await cacheAirportCode(normalized, fallbackCode);
+            return fallbackCode;
         }
 
         console.log(`Resolved "${cityName}" to airport code: ${airport.iataCode}`);
+
+        // 3. Cache the successful result for future use
+        await cacheAirportCode(normalized, airport.iataCode);
+
         return airport.iataCode;
 
     } catch (error) {

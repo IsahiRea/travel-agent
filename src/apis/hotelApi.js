@@ -4,37 +4,11 @@
  * API Documentation: https://developers.amadeus.com/
  */
 
-/**
- * Get Amadeus OAuth access token
- * @returns {Promise<string>} Access token
- */
-async function getAmadeusAccessToken() {
-    const apiKey = import.meta.env.VITE_AMADEUS_API_KEY;
-    const apiSecret = import.meta.env.VITE_AMADEUS_API_SECRET;
-
-    const params = new URLSearchParams();
-    params.append('grant_type', 'client_credentials');
-    params.append('client_id', apiKey);
-    params.append('client_secret', apiSecret);
-
-    const response = await fetch('https://test.api.amadeus.com/v1/security/oauth2/token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: params
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to authenticate with Amadeus API');
-    }
-
-    const data = await response.json();
-    return data.access_token;
-}
+import { getAmadeusAccessToken } from '../utils/tokenCache.js';
+import { getCachedAirportCode, cacheAirportCode } from '../utils/cache/airportCache.js';
 
 /**
- * Get IATA city code from city name using Amadeus Airport & City Search API
+ * Get IATA city code from city name with IndexedDB caching
  * @param {string} cityName - City name or city code
  * @param {string} accessToken - Amadeus API access token
  * @returns {Promise<string>} IATA city code
@@ -48,7 +22,13 @@ async function getCityCode(cityName, accessToken) {
             return normalized.toUpperCase();
         }
 
-        // Call Amadeus Airport & City Search API
+        // 1. Try IndexedDB cache first (instant lookup)
+        const cachedCode = await getCachedAirportCode(normalized);
+        if (cachedCode) {
+            return cachedCode;
+        }
+
+        // 2. Cache miss - fetch from Amadeus API
         const params = new URLSearchParams({
             subType: 'CITY',
             keyword: normalized
@@ -67,7 +47,10 @@ async function getCityCode(cityName, accessToken) {
 
         if (!response.ok) {
             console.warn(`City search failed for "${cityName}". Using fallback.`);
-            return getFallbackCityCode(cityName);
+            const fallbackCode = getFallbackCityCode(cityName);
+            // Cache fallback result to avoid repeated API failures
+            await cacheAirportCode(normalized, fallbackCode);
+            return fallbackCode;
         }
 
         const data = await response.json();
@@ -75,7 +58,9 @@ async function getCityCode(cityName, accessToken) {
         // Handle empty results
         if (!data.data || data.data.length === 0) {
             console.warn(`No cities found for "${cityName}". Using fallback.`);
-            return getFallbackCityCode(cityName);
+            const fallbackCode = getFallbackCityCode(cityName);
+            await cacheAirportCode(normalized, fallbackCode);
+            return fallbackCode;
         }
 
         // Get the first city result
@@ -83,10 +68,16 @@ async function getCityCode(cityName, accessToken) {
 
         if (!city.iataCode) {
             console.warn(`No IATA code found for "${cityName}". Using fallback.`);
-            return getFallbackCityCode(cityName);
+            const fallbackCode = getFallbackCityCode(cityName);
+            await cacheAirportCode(normalized, fallbackCode);
+            return fallbackCode;
         }
 
         console.log(`Resolved "${cityName}" to city code: ${city.iataCode}`);
+
+        // 3. Cache the successful result for future use
+        await cacheAirportCode(normalized, city.iataCode);
+
         return city.iataCode;
 
     } catch (error) {
