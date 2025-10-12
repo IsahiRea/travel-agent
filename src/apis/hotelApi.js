@@ -34,11 +34,73 @@ async function getAmadeusAccessToken() {
 }
 
 /**
- * Get city code from city name
+ * Get IATA city code from city name using Amadeus Airport & City Search API
+ * @param {string} cityName - City name or city code
+ * @param {string} accessToken - Amadeus API access token
+ * @returns {Promise<string>} IATA city code
+ */
+async function getCityCode(cityName, accessToken) {
+    try {
+        const normalized = cityName.trim();
+
+        // If it's already a 3-letter IATA code, return as-is
+        if (/^[A-Z]{3}$/i.test(normalized)) {
+            return normalized.toUpperCase();
+        }
+
+        // Call Amadeus Airport & City Search API
+        const params = new URLSearchParams({
+            subType: 'CITY',
+            keyword: normalized
+        });
+
+        const response = await fetch(
+            `https://test.api.amadeus.com/v1/reference-data/locations?${params}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Accept': 'application/json'
+                }
+            }
+        );
+
+        if (!response.ok) {
+            console.warn(`City search failed for "${cityName}". Using fallback.`);
+            return getFallbackCityCode(cityName);
+        }
+
+        const data = await response.json();
+
+        // Handle empty results
+        if (!data.data || data.data.length === 0) {
+            console.warn(`No cities found for "${cityName}". Using fallback.`);
+            return getFallbackCityCode(cityName);
+        }
+
+        // Get the first city result
+        const city = data.data[0];
+
+        if (!city.iataCode) {
+            console.warn(`No IATA code found for "${cityName}". Using fallback.`);
+            return getFallbackCityCode(cityName);
+        }
+
+        console.log(`Resolved "${cityName}" to city code: ${city.iataCode}`);
+        return city.iataCode;
+
+    } catch (error) {
+        console.error(`Error fetching city code for "${cityName}":`, error.message);
+        return getFallbackCityCode(cityName);
+    }
+}
+
+/**
+ * Fallback function to get city code from hardcoded mapping
  * @param {string} cityName - City name
  * @returns {string} IATA city code
  */
-function getCityCode(cityName) {
+function getFallbackCityCode(cityName) {
     const cityToCityCode = {
         'new york': 'NYC',
         'new york city': 'NYC',
@@ -89,14 +151,7 @@ function getCityCode(cityName) {
     };
 
     const normalized = cityName.toLowerCase().trim();
-
-    // If it's already a 3-letter code, return as-is
-    if (/^[A-Z]{3}$/.test(cityName.toUpperCase())) {
-        return cityName.toUpperCase();
-    }
-
-    // Look up in mapping
-    return cityToCityCode[normalized] || 'PAR'; // Default fallback
+    return cityToCityCode[normalized] || 'PAR';
 }
 
 /**
@@ -120,7 +175,7 @@ export async function fetchHotelData(tripData) {
         const accessToken = await getAmadeusAccessToken();
 
         // Get city code for destination
-        const cityCode = getCityCode(tripData.arriveAt);
+        const cityCode = await getCityCode(tripData.arriveAt, accessToken);
 
         console.log('Searching hotels in city:', cityCode);
 
@@ -290,7 +345,7 @@ function getMockHotelData(tripData) {
             name: 'Grand Plaza Hotel',
             rating: 4,
             location: {
-                cityCode: getCityCode(tripData.arriveAt),
+                cityCode: getFallbackCityCode(tripData.arriveAt),
                 address: {
                     cityName: tripData.arriveAt
                 }
@@ -316,7 +371,7 @@ function getMockHotelData(tripData) {
             name: 'Boutique Inn & Suites',
             rating: 5,
             location: {
-                cityCode: getCityCode(tripData.arriveAt),
+                cityCode: getFallbackCityCode(tripData.arriveAt),
                 address: {
                     cityName: tripData.arriveAt
                 }
@@ -342,7 +397,7 @@ function getMockHotelData(tripData) {
             name: 'City Center Lodge',
             rating: 3,
             location: {
-                cityCode: getCityCode(tripData.arriveAt),
+                cityCode: getFallbackCityCode(tripData.arriveAt),
                 address: {
                     cityName: tripData.arriveAt
                 }

@@ -55,8 +55,8 @@ export async function fetchFlightData(tripData) {
         const accessToken = await getAmadeusAccessToken();
 
         // Convert city names to IATA airport codes
-        const originCode = await getAirportCode(tripData.departFrom);
-        const destinationCode = await getAirportCode(tripData.arriveAt);
+        const originCode = await getAirportCode(tripData.departFrom, accessToken);
+        const destinationCode = await getAirportCode(tripData.arriveAt, accessToken);
 
         // Build request URL with query parameters
         const params = new URLSearchParams({
@@ -208,13 +208,73 @@ function transformItinerary(itinerary) {
 }
 
 /**
- * Get IATA airport code from city name
- * In production, this would use Amadeus Airport & City Search API
+ * Get IATA airport code from city name using Amadeus Airport & City Search API
  * @param {string} cityName - City name or airport code
+ * @param {string} accessToken - Amadeus API access token
+ * @returns {Promise<string>} IATA airport code
+ */
+async function getAirportCode(cityName, accessToken) {
+    try {
+        const normalized = cityName.trim();
+
+        // If it's already a 3-letter IATA code, return as-is
+        if (/^[A-Z]{3}$/i.test(normalized)) {
+            return normalized.toUpperCase();
+        }
+
+        // Call Amadeus Airport & City Search API
+        const params = new URLSearchParams({
+            subType: 'AIRPORT,CITY',
+            keyword: normalized
+        });
+
+        const response = await fetch(
+            `https://test.api.amadeus.com/v1/reference-data/locations?${params}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Accept': 'application/json'
+                }
+            }
+        );
+
+        if (!response.ok) {
+            console.warn(`Airport search failed for "${cityName}". Using fallback.`);
+            return getFallbackAirportCode(cityName);
+        }
+
+        const data = await response.json();
+
+        // Handle empty results
+        if (!data.data || data.data.length === 0) {
+            console.warn(`No airports found for "${cityName}". Using fallback.`);
+            return getFallbackAirportCode(cityName);
+        }
+
+        // Prioritize AIRPORT subType, fall back to CITY
+        const airport = data.data.find(loc => loc.subType === 'AIRPORT') || data.data[0];
+
+        if (!airport.iataCode) {
+            console.warn(`No IATA code found for "${cityName}". Using fallback.`);
+            return getFallbackAirportCode(cityName);
+        }
+
+        console.log(`Resolved "${cityName}" to airport code: ${airport.iataCode}`);
+        return airport.iataCode;
+
+    } catch (error) {
+        console.error(`Error fetching airport code for "${cityName}":`, error.message);
+        return getFallbackAirportCode(cityName);
+    }
+}
+
+/**
+ * Fallback function to get airport code from hardcoded mapping
+ * @param {string} cityName - City name
  * @returns {string} IATA airport code
  */
-async function getAirportCode(cityName) {
-    // Common city to airport code mappings
+function getFallbackAirportCode(cityName) {
     const cityToAirport = {
         'new york': 'JFK',
         'new york city': 'JFK',
@@ -265,14 +325,7 @@ async function getAirportCode(cityName) {
     };
 
     const normalized = cityName.toLowerCase().trim();
-
-    // If it's already a 3-letter code, return as-is
-    if (/^[A-Z]{3}$/.test(cityName.toUpperCase())) {
-        return cityName.toUpperCase();
-    }
-
-    // Look up in mapping
-    return cityToAirport[normalized] || 'JFK'; // Default fallback
+    return cityToAirport[normalized] || 'JFK';
 }
 
 /**
