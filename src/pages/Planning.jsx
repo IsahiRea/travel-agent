@@ -88,10 +88,42 @@ export default function Planning() {
         budget: Number(budget)
       };
 
-      const weatherData = await fetchWeatherData(tripData);
-      const flightData = await fetchFlightData(tripData);
-      const hotelData = await fetchHotelData(tripData);
+      console.log('Fetching trip data for:', tripData);
 
+      // Fetch all API data in parallel using Promise.all for better performance
+      const [weatherData, flightData, hotelData] = await Promise.all([
+        fetchWeatherData(tripData),
+        fetchFlightData(tripData),
+        fetchHotelData(tripData)
+      ]);
+
+      console.log('All API data fetched successfully');
+      console.log('Weather:', weatherData?.success ? 'Success' : 'Failed');
+      console.log('Flights:', flightData?.success ? `${flightData.count} found` : 'Failed');
+      console.log('Hotels:', hotelData?.success ? `${hotelData.count} found` : 'Failed');
+
+      // Validate that we have the necessary data
+      if (!weatherData || !flightData || !hotelData) {
+        throw new Error('Failed to fetch required trip data');
+      }
+
+      // Check if any API returned no results
+      const hasFlights = flightData.flights && flightData.flights.length > 0;
+      const hasHotels = hotelData.hotels && hotelData.hotels.length > 0;
+
+      if (!hasFlights || !hasHotels) {
+        const missingData = [];
+        if (!hasFlights) missingData.push('flights');
+        if (!hasHotels) missingData.push('hotels');
+
+        return {
+          error: `No ${missingData.join(' or ')} available for the selected criteria. Please try different dates or destinations.`,
+          message: null
+        };
+      }
+
+      // Generate comprehensive trip plan with all collected data
+      console.log('Generating trip plan with AI...');
       const tripPlan = await generateTripPlan({
         weather: weatherData,
         flights: flightData,
@@ -99,7 +131,15 @@ export default function Planning() {
         tripData
       });
 
-      navigate('/results', { state: { tripPlan } });
+      console.log('Trip plan generated successfully');
+
+      // Navigate to results page with complete trip plan
+      navigate('/results', {
+        state: {
+          tripPlan,
+          tripData
+        }
+      });
 
       return {
         error: null,
@@ -107,8 +147,12 @@ export default function Planning() {
       };
     } catch (error) {
       console.error('Error generating trip plan:', error);
+
+      // Provide more specific error messages
+      const errorMessage = error.message || 'Failed to generate trip plan. Please try again.';
+
       return {
-        error: 'Failed to generate trip plan. Please try again.',
+        error: errorMessage,
         message: null
       };
     }

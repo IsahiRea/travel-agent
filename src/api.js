@@ -14,4 +14,4 @@ export { fetchFlightData } from './apis/flightApi.js';
 export { fetchHotelData } from './apis/hotelApi.js';
 
 // Trip Plan API
-export { fetchTripPlan, generateTripPlan } from './apis/tripPlanApi.js';
+export { generateTripPlan } from './apis/tripPlanApi.js';

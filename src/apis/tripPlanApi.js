@@ -7,9 +7,6 @@
 import { z } from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { openai } from '../config.js';
-import { fetchWeatherData } from './weatherApi.js';
-import { fetchFlightData } from './flightApi.js';
-import { fetchHotelData } from './hotelApi.js';
 
 /**
  * Zod Schema for Activity
@@ -92,25 +89,6 @@ const TripPlanSchema = z.object({
     packingRecommendations: z.array(z.string()).describe('What to pack based on weather and activities')
 });
 
-/**
- * Fetch weather data, flight options, hotel availability,
- * and return a comprehensive trip plan using OpenAI API.
- * @param {Object} formData - Trip planning form data
- * @returns {Promise<Object>} Comprehensive trip plan
- */
-export async function fetchTripPlan(formData) {
-    try {
-        const weather = await fetchWeatherData(formData);
-        const flights = await fetchFlightData(formData);
-        const hotels = await fetchHotelData(formData);
-
-        const tripPlan = await generateTripPlan({ weather, flights, hotels, tripData: formData });
-        return tripPlan;
-    } catch (error) {
-        console.error("Error fetching trip plan:", error);
-        throw error;
-    }
-}
 
 /**
  * Generate a trip plan using collected data and OpenAI API
