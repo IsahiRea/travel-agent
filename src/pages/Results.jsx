@@ -11,6 +11,13 @@ const imgIconCalendar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000
 const imgIconArrow = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E";
 const imgIconLocation = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/%3E%3C/svg%3E";
 
+//TODO: Refactor page into smaller components for readability
+//TODO: Add a way to view full flight/hotel details (e.g. link to provider site)
+//TODO: Add different hero images based on destination (use unsplash API?)
+//TODO: Update Desktop Design for better use of space (maybe 2-column layout with image sidebar?)
+
+
+
 /**
  * Format date string to user-friendly format
  * @param {string} dateStr - Date string in YYYY-MM-DD format

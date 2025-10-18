@@ -7,6 +7,9 @@ import imgIcon2 from '../assets/images/icons/flex-calendar.svg';
 import imgIcon3 from '../assets/images/icons/plane.svg';
 import imgIcon4 from '../assets/images/icons/dollar.svg';
 
+//TODO: Fix Icons that are not center aligned in feature cards (e.g. globe icon) in mobile view
+//TODO: Add different hero images (use unsplash API? / Caraousel?)
+
 export default function Home() {
   const navigate = useNavigate();
   return (
