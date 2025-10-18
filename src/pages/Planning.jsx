@@ -14,6 +14,14 @@ const imgIconSwap = new URL('../assets/images/icons/swap.svg', import.meta.url).
 const imgIconSwap2 = new URL('../assets/images/icons/swap2.svg', import.meta.url).href;
 const imgIconCalendar = new URL('../assets/images/icons/calendar.svg', import.meta.url).href;
 
+//TODO: Add form validation feedback (e.g. red border on invalid fields)
+//TODO: Improve accessibility (e.g. better ARIA labels, keyboard navigation)
+//TODO: Add location autocomplete (e.g. Google Places API) for depart/arrive fields
+//TODO: Add loading spinner when fetching data
+//TODO: Save form state in localStorage to persist on refresh
+//TODO: Add option for one-way trips (hide return date)
+
+
 export default function Planning() {
   const navigate = useNavigate();
   const [travelers, setTravelers] = useState(1);

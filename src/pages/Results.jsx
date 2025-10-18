@@ -11,12 +11,60 @@ const imgIconCalendar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000
 const imgIconArrow = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E";
 const imgIconLocation = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/%3E%3C/svg%3E";
 
+//TODO: Refactor page into smaller components for readability
+//TODO: Add a way to view full flight/hotel details (e.g. link to provider site)
+//TODO: Add different hero images based on destination (use unsplash API?)
+//TODO: Update Desktop Design for better use of space (maybe 2-column layout with image sidebar?)
+
+
+
+/**
+ * Format date string to user-friendly format
+ * @param {string} dateStr - Date string in YYYY-MM-DD format
+ * @returns {string} Formatted date (e.g., "Nov 23")
+ */
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const month = date.toLocaleDateString('en-US', { month: 'short' });
+  const day = date.getDate();
+  return `${month} ${day}`;
+}
+
+/**
+ * Format flight duration from ISO 8601 format
+ * @param {string} duration - Duration in ISO format (e.g., "PT8H30M")
+ * @returns {string} Formatted duration (e.g., "8h 30m")
+ */
+ 
+function _formatDuration(duration) {
+  if (!duration) return '';
+  const match = duration.match(/PT(\d+H)?(\d+M)?/);
+  if (!match) return duration;
+
+  const hours = match[1] ? match[1].replace('H', 'h') : '';
+  const minutes = match[2] ? ' ' + match[2].replace('M', 'm') : '';
+  return hours + minutes;
+}
+
+/**
+ * Format time from ISO string
+ * @param {string} timeStr - ISO time string
+ * @returns {string} Formatted time (e.g., "10:30 AM")
+ */
+ 
+function _formatTime(timeStr) {
+  if (!timeStr) return '';
+  const date = new Date(timeStr);
+  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+}
+
 export default function Results() {
   const navigate = useNavigate();
   const location = useLocation();
-  // Note: These will be used for dynamic rendering in future - prefixed with _ for ESLint
-  const [_tripData, _setTripData] = useState(null);
-  const [_tripPlan, _setTripPlan] = useState(null);
+  const [tripData, setTripData] = useState(null);
+  const [tripPlan, setTripPlan] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Try to load trip data from sessionStorage first (optimized approach)
@@ -25,8 +73,9 @@ export default function Results() {
       const storedTripPlan = sessionStorage.getItem('tripPlan');
 
       if (storedTripData && storedTripPlan) {
-        _setTripData(JSON.parse(storedTripData));
-        _setTripPlan(JSON.parse(storedTripPlan));
+        setTripData(JSON.parse(storedTripData));
+        setTripPlan(JSON.parse(storedTripPlan));
+        setIsLoading(false);
         return;
       }
     } catch (error) {
@@ -35,8 +84,9 @@ export default function Results() {
 
     // Fallback to navigation state (backward compatibility)
     if (location.state?.tripData && location.state?.tripPlan) {
-      _setTripData(location.state.tripData);
-      _setTripPlan(location.state.tripPlan);
+      setTripData(location.state.tripData);
+      setTripPlan(location.state.tripPlan);
+      setIsLoading(false);
       return;
     }
 
@@ -44,6 +94,17 @@ export default function Results() {
     console.warn('No trip data found, redirecting to planning page');
     navigate('/planning');
   }, [location, navigate]);
+
+  // Show loading state while data is being retrieved
+  if (isLoading || !tripData || !tripPlan) {
+    return (
+      <div className="results-page">
+        <div className="loading-container">
+          <p>Loading your trip plan...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="results-page">
@@ -60,7 +121,7 @@ export default function Results() {
 
       <div className="trip-details">
         <div className="hero-banner">
-          <img alt="Paris" className="hero-image" src={imgHeroEiffel} />
+          <img alt={tripPlan.destination} className="hero-image" src={imgHeroEiffel} />
           <div className="hero-overlay" />
           <div className="hero-content">
             <div className="itinerary-badge">
@@ -68,22 +129,22 @@ export default function Results() {
               <span className="results-badge-text">Your Itinerary</span>
             </div>
             <div className="hero-info">
-              <h1 className="trip-title">Trip to Paris</h1>
+              <h1 className="trip-title">Trip to {tripPlan.destination}</h1>
               <div className="trip-meta">
                 <div className="meta-card">
                   <img alt="" className="meta-icon" src={imgIconCalendar} />
                   <div className="meta-content">
-                    <span className="meta-text">Nov 23</span>
+                    <span className="meta-text">{formatDate(tripData.departDate)}</span>
                     <img alt="" className="arrow-icon" src={imgIconArrow} />
-                    <span className="meta-text">Dec 4</span>
+                    <span className="meta-text">{formatDate(tripData.returnDate)}</span>
                   </div>
                 </div>
                 <div className="meta-card">
                   <img alt="" className="meta-icon" src={imgIconLocation} />
                   <div className="meta-content">
-                    <span className="meta-text">New York City</span>
+                    <span className="meta-text">{tripData.departFrom}</span>
                     <img alt="" className="arrow-icon" src={imgIconArrow} />
-                    <span className="meta-text">Paris</span>
+                    <span className="meta-text">{tripData.arriveAt}</span>
                   </div>
                 </div>
               </div>
@@ -96,82 +157,215 @@ export default function Results() {
             <div className="info-icon travelers-icon" />
             <div className="info-content">
               <span className="info-label">Travelers</span>
-              <span className="info-value">1 Person</span>
+              <span className="info-value">
+                {tripData.travelers} {tripData.travelers === 1 ? 'Person' : 'People'}
+              </span>
             </div>
           </div>
           <div className="info-card">
             <div className="info-icon budget-icon" />
             <div className="info-content">
               <span className="info-label">Total Budget</span>
-              <span className="info-value">$5000</span>
+              <span className="info-value">${tripData.budget.toLocaleString()}</span>
             </div>
           </div>
         </div>
 
-        <div className="weather-card">
-          <div className="weather-icon" />
-          <div className="weather-content">
-            <h3 className="card-title">Weather Forecast</h3>
-            <p className="card-description">
-              You can expect the weather to be quite mild. Low will be 19° and high will be 25°
-            </p>
-            <div className="temp-boxes">
-              <div className="temp-box">
-                <span className="temp-label">Low</span>
-                <span className="temp-value">19°C</span>
-              </div>
-              <div className="temp-box">
-                <span className="temp-label">High</span>
-                <span className="temp-value">25°C</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="recommendation-card">
-          <div className="rec-image-container">
-            <img alt="Flight" className="rec-image" src={imgFlightWing} />
-            <div className="rec-overlay" />
-            <div className="rec-badge best-deal">Best Deal</div>
-          </div>
-          <div className="rec-content">
-            <div className="rec-icon flight-icon" />
-            <div className="rec-details">
-              <h3 className="card-title">Recommended Flights</h3>
+        {tripPlan.rawWeatherData && tripPlan.rawWeatherData.forecast && tripPlan.rawWeatherData.forecast.length > 0 && (
+          <div className="weather-card">
+            <div className="weather-icon" />
+            <div className="weather-content">
+              <h3 className="card-title">Weather Forecast</h3>
               <p className="card-description">
-                The best option for you is with Delta Airlines with a layover in Oslo. Perfect for 1 traveler.
+                {tripPlan.rawWeatherData.summary || 'Weather information for your destination.'}
               </p>
-              <div className="tag-group">
-                <span className="tag">Direct Flight</span>
-                <span className="tag">Economy Class</span>
+              <div className="temp-boxes">
+                <div className="temp-box">
+                  <span className="temp-label">Low</span>
+                  <span className="temp-value">
+                    {Math.min(...tripPlan.rawWeatherData.forecast.map(d => d.tempMin))}°C
+                  </span>
+                </div>
+                <div className="temp-box">
+                  <span className="temp-label">High</span>
+                  <span className="temp-value">
+                    {Math.max(...tripPlan.rawWeatherData.forecast.map(d => d.tempMax))}°C
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-          <button className="book-button">Book Flight</button>
-        </div>
+        )}
 
-        <div className="recommendation-card">
-          <div className="rec-image-container">
-            <img alt="Hotel" className="rec-image" src={imgHotelRoom} />
-            <div className="rec-overlay" />
-            <div className="rec-badge rating">4.8★ Rating</div>
+        {tripPlan.selectedFlight && (
+          <div className="recommendation-card">
+            <div className="rec-image-container">
+              <img alt="Flight" className="rec-image" src={imgFlightWing} />
+              <div className="rec-overlay" />
+              <div className="rec-badge best-deal">Best Value</div>
+            </div>
+            <div className="rec-content">
+              <div className="rec-icon flight-icon" />
+              <div className="rec-details">
+                <h3 className="card-title">Recommended Flight</h3>
+                <p className="card-description">
+                  {tripPlan.selectedFlight.outboundDetails}
+                  {tripPlan.selectedFlight.returnDetails && ` • ${tripPlan.selectedFlight.returnDetails}`}
+                </p>
+                <div className="tag-group">
+                  <span className="tag">{tripPlan.selectedFlight.airline}</span>
+                  <span className="tag">${tripPlan.selectedFlight.totalCost.toFixed(2)}</span>
+                  <span className="tag">{tripData.travelers} {tripData.travelers === 1 ? 'Traveler' : 'Travelers'}</span>
+                </div>
+              </div>
+            </div>
+            <button className="book-button">View Details</button>
           </div>
-          <div className="rec-content">
-            <div className="rec-icon hotel-icon" />
-            <div className="rec-details">
-              <h3 className="card-title">Recommended Hotel</h3>
-              <p className="card-description">
-                We recommend you stay at the Premiere Inn hotel in central Paris. Budget-friendly at $1500 for accommodations.
-              </p>
-              <div className="tag-group">
-                <span className="tag">Free WiFi</span>
-                <span className="tag">Breakfast</span>
-                <span className="tag">Central Location</span>
+        )}
+
+        {tripPlan.selectedHotel && (
+          <div className="recommendation-card">
+            <div className="rec-image-container">
+              <img alt="Hotel" className="rec-image" src={imgHotelRoom} />
+              <div className="rec-overlay" />
+              <div className="rec-badge rating">{tripPlan.selectedHotel.rating}★ Rating</div>
+            </div>
+            <div className="rec-content">
+              <div className="rec-icon hotel-icon" />
+              <div className="rec-details">
+                <h3 className="card-title">{tripPlan.selectedHotel.name}</h3>
+                <p className="card-description">
+                  Located in {tripPlan.selectedHotel.location}. Total cost: ${tripPlan.selectedHotel.totalCost.toFixed(2)} for your stay.
+                </p>
+                <div className="tag-group">
+                  {tripPlan.selectedHotel.amenities && tripPlan.selectedHotel.amenities.slice(0, 3).map((amenity, idx) => (
+                    <span key={idx} className="tag">{amenity.replace(/_/g, ' ')}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <button className="book-button">View Details</button>
+          </div>
+        )}
+
+        {tripPlan.budgetAnalysis && (
+          <div className="budget-section">
+            <h2 className="section-title">Budget Breakdown</h2>
+            <div className="budget-grid">
+              <div className="budget-item">
+                <span className="budget-label">Flights</span>
+                <span className="budget-value">${tripPlan.budgetAnalysis.flights.toFixed(2)}</span>
+              </div>
+              <div className="budget-item">
+                <span className="budget-label">Accommodation</span>
+                <span className="budget-value">${tripPlan.budgetAnalysis.accommodation.toFixed(2)}</span>
+              </div>
+              <div className="budget-item">
+                <span className="budget-label">Activities</span>
+                <span className="budget-value">${tripPlan.budgetAnalysis.activities.toFixed(2)}</span>
+              </div>
+              <div className="budget-item">
+                <span className="budget-label">Meals</span>
+                <span className="budget-value">${tripPlan.budgetAnalysis.meals.toFixed(2)}</span>
+              </div>
+              <div className="budget-item">
+                <span className="budget-label">Transportation</span>
+                <span className="budget-value">${tripPlan.budgetAnalysis.transportation.toFixed(2)}</span>
+              </div>
+              <div className="budget-item">
+                <span className="budget-label">Miscellaneous</span>
+                <span className="budget-value">${tripPlan.budgetAnalysis.miscellaneous.toFixed(2)}</span>
+              </div>
+              <div className="budget-item budget-total">
+                <span className="budget-label">Total Estimated Cost</span>
+                <span className="budget-value">${tripPlan.budgetAnalysis.total.toFixed(2)}</span>
               </div>
             </div>
           </div>
-          <button className="book-button">Book Hotel</button>
-        </div>
+        )}
+
+        {tripPlan.dailyItinerary && tripPlan.dailyItinerary.length > 0 && (
+          <div className="itinerary-section">
+            <h2 className="section-title">Daily Itinerary</h2>
+            {tripPlan.dailyItinerary.map((day) => (
+              <div key={day.day} className="day-card">
+                <div className="day-header">
+                  <h3 className="day-title">Day {day.day}</h3>
+                  <span className="day-date">{formatDate(day.date)}</span>
+                </div>
+
+                <div className="day-weather">
+                  <div className="weather-summary">
+                    <span className="weather-temp">{day.weather.temperature}</span>
+                    <span className="weather-condition">{day.weather.condition}</span>
+                  </div>
+                  <p className="weather-description">{day.weather.description}</p>
+                  <p className="weather-recommendation">{day.weather.recommendation}</p>
+                </div>
+
+                <div className="activities-section">
+                  <h4 className="subsection-title">Activities</h4>
+                  {day.activities.map((activity, idx) => (
+                    <div key={idx} className="activity-item">
+                      <div className="activity-header">
+                        <span className="activity-time">{activity.time}</span>
+                        <span className="activity-cost">${activity.estimatedCost}</span>
+                      </div>
+                      <h5 className="activity-name">{activity.name}</h5>
+                      <p className="activity-description">{activity.description}</p>
+                      {activity.weatherDependent && (
+                        <span className="weather-dependent-tag">Weather dependent</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="meals-section">
+                  <h4 className="subsection-title">Meals</h4>
+                  <div className="meals-grid">
+                    {day.meals.map((meal, idx) => (
+                      <div key={idx} className="meal-item">
+                        <span className="meal-type">{meal.type}</span>
+                        <span className="meal-name">{meal.suggestion}</span>
+                        <span className="meal-cuisine">{meal.cuisine}</span>
+                        <span className="meal-cost">${meal.estimatedCost}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tripPlan.travelTips && tripPlan.travelTips.length > 0 && (
+          <div className="tips-section">
+            <h2 className="section-title">Travel Tips</h2>
+            <ul className="tips-list">
+              {tripPlan.travelTips.map((tip, idx) => (
+                <li key={idx} className="tip-item">{tip}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {tripPlan.packingRecommendations && tripPlan.packingRecommendations.length > 0 && (
+          <div className="packing-section">
+            <h2 className="section-title">Packing Recommendations</h2>
+            <ul className="packing-list">
+              {tripPlan.packingRecommendations.map((item, idx) => (
+                <li key={idx} className="packing-item">{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {tripPlan.summary && (
+          <div className="summary-section">
+            <h2 className="section-title">Trip Summary</h2>
+            <p className="summary-text">{tripPlan.summary}</p>
+          </div>
+        )}
       </div>
     </div>
   );
