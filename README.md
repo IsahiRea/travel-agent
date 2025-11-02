@@ -14,6 +14,20 @@ An intelligent travel planning application built with React 19 and Vite that hel
 - **Mobile-First Design**: Responsive CSS with mobile-first approach
 - **Modern React**: Built with React 19 featuring hooks like useActionState
 
+## Screenshots
+
+### Home Page
+![Home Page](screenshots/home-page.png)
+*Landing page featuring the hero section with trip planning call-to-action and key features*
+
+### Planning Page
+![Planning Page](screenshots/planning-page.png)
+*Interactive trip planning form with location inputs, date pickers, traveler counter, and budget input*
+
+### Results Page
+![Results Page](screenshots/results-page.png)
+*Comprehensive trip itinerary with flight options, hotel recommendations, daily schedule, weather forecasts, and AI-generated travel tips*
+
 ## Tech Stack
 
 - **React 19** - Latest React with Fast Refresh
