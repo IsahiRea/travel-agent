@@ -11,81 +11,81 @@ import { getOpenAIClient } from '../config.js';
  * Zod Schema for Activity
  */
 const ActivitySchema = z.object({
-    time: z.string().describe('Time of day for the activity (e.g., "Morning", "Afternoon", "Evening")'),
-    name: z.string().describe('Name of the activity'),
-    description: z.string().describe('Detailed description of the activity'),
-    estimatedCost: z.number().describe('Estimated cost in USD'),
-    weatherDependent: z.boolean().describe('Whether this activity depends on good weather')
+    time: z.string(),
+    name: z.string(),
+    description: z.string(),
+    estimatedCost: z.number(),
+    weatherDependent: z.boolean()
 });
 
 /**
  * Zod Schema for Meal Suggestion
  */
 const MealSchema = z.object({
-    type: z.enum(['Breakfast', 'Lunch', 'Dinner']).describe('Type of meal'),
-    suggestion: z.string().describe('Restaurant or meal suggestion'),
-    cuisine: z.string().describe('Type of cuisine'),
-    estimatedCost: z.number().describe('Estimated cost per person in USD')
+    type: z.enum(['Breakfast', 'Lunch', 'Dinner']),
+    suggestion: z.string(),
+    cuisine: z.string(),
+    estimatedCost: z.number()
 });
 
 /**
  * Zod Schema for Daily Weather
  */
 const DailyWeatherSchema = z.object({
-    temperature: z.string().describe('Temperature range (e.g., "18-25°C")'),
-    condition: z.string().describe('Weather condition (e.g., "Clear", "Rainy")'),
-    description: z.string().describe('Detailed weather description'),
-    recommendation: z.string().describe('Clothing/preparation recommendation based on weather')
+    temperature: z.string(),
+    condition: z.string(),
+    description: z.string(),
+    recommendation: z.string()
 });
 
 /**
  * Zod Schema for Daily Itinerary
  */
 const DailyItinerarySchema = z.object({
-    day: z.number().describe('Day number of the trip'),
-    date: z.string().describe('Date in YYYY-MM-DD format'),
+    day: z.number(),
+    date: z.string(),
     weather: DailyWeatherSchema,
-    activities: z.array(ActivitySchema).describe('List of activities for the day'),
-    meals: z.array(MealSchema).describe('Meal suggestions for the day')
+    activities: z.array(ActivitySchema),
+    meals: z.array(MealSchema)
 });
 
 /**
  * Zod Schema for Budget Breakdown
  */
 const BudgetBreakdownSchema = z.object({
-    flights: z.number().describe('Total cost for flights'),
-    accommodation: z.number().describe('Total cost for hotel accommodation'),
-    activities: z.number().describe('Total estimated cost for activities'),
-    meals: z.number().describe('Total estimated cost for meals'),
-    transportation: z.number().describe('Estimated local transportation costs'),
-    miscellaneous: z.number().describe('Buffer for miscellaneous expenses'),
-    total: z.number().describe('Total estimated trip cost')
+    flights: z.number(),
+    accommodation: z.number(),
+    activities: z.number(),
+    meals: z.number(),
+    transportation: z.number(),
+    miscellaneous: z.number(),
+    total: z.number()
 });
 
 /**
  * Zod Schema for Complete Trip Plan
  */
 const TripPlanSchema = z.object({
-    summary: z.string().describe('Executive summary of the trip plan'),
-    destination: z.string().describe('Destination city and country'),
-    tripDuration: z.number().describe('Number of days for the trip'),
+    summary: z.string(),
+    destination: z.string(),
+    tripDuration: z.number(),
     selectedFlight: z.object({
-        outboundDetails: z.string().describe('Outbound flight summary'),
-        returnDetails: z.string().describe('Return flight summary (if applicable)'),
-        totalCost: z.number().describe('Total flight cost'),
-        airline: z.string().describe('Airline name')
+        outboundDetails: z.string(),
+        returnDetails: z.string(),
+        totalCost: z.number(),
+        airline: z.string()
     }),
     selectedHotel: z.object({
-        name: z.string().describe('Hotel name'),
-        rating: z.number().describe('Hotel star rating'),
-        location: z.string().describe('Hotel location description'),
-        totalCost: z.number().describe('Total accommodation cost'),
-        amenities: z.array(z.string()).describe('Key hotel amenities')
+        name: z.string(),
+        rating: z.number(),
+        location: z.string(),
+        totalCost: z.number(),
+        amenities: z.array(z.string())
     }),
-    dailyItinerary: z.array(DailyItinerarySchema).describe('Day-by-day itinerary'),
+    dailyItinerary: z.array(DailyItinerarySchema),
     budgetAnalysis: BudgetBreakdownSchema,
-    travelTips: z.array(z.string()).describe('Helpful travel tips for the destination'),
-    packingRecommendations: z.array(z.string()).describe('What to pack based on weather and activities')
+    travelTips: z.array(z.string()),
+    packingRecommendations: z.array(z.string())
 });
 
 
@@ -134,7 +134,7 @@ export async function generateTripPlan(data) {
             ],
             response_format: zodResponseFormat(TripPlanSchema, 'trip_plan'),
             temperature: 0.7,
-            max_tokens: 4000
+            max_tokens: 2500  // Reduced from 4000 for faster generation
         });
 
         const message = completion.choices[0]?.message;

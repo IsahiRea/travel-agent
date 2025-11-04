@@ -27,6 +27,7 @@ export default function Planning() {
   const [travelers, setTravelers] = useState(1);
   const [departFrom, setDepartFrom] = useState('New York City');
   const [arriveAt, setArriveAt] = useState('Paris');
+  const [loadingStage, setLoadingStage] = useState(null);
 
   const handleIncrement = () => setTravelers(prev => prev + 1);
   const handleDecrement = () => setTravelers(prev => Math.max(1, prev - 1));
@@ -102,6 +103,7 @@ export default function Planning() {
       console.log('Fetching trip data for:', tripData);
 
       // Fetch all API data in parallel using Promise.all for better performance
+      setLoadingStage('Searching for flights, hotels, and checking weather...');
       const [weatherData, flightData, hotelData] = await Promise.all([
         fetchWeatherData(tripData),
         fetchFlightData(tripData),
@@ -135,6 +137,7 @@ export default function Planning() {
 
       // Generate comprehensive trip plan with all collected data
       console.log('Generating trip plan with AI...');
+      setLoadingStage('Creating your personalized itinerary with AI...');
       const tripPlan = await generateTripPlan({
         weather: weatherData,
         flights: flightData,
@@ -143,6 +146,7 @@ export default function Planning() {
       });
 
       console.log('Trip plan generated successfully');
+      setLoadingStage(null);
 
       // Store trip data in sessionStorage to avoid large navigation state payload
       // This improves performance and memory usage
@@ -173,6 +177,7 @@ export default function Planning() {
       };
     } catch (error) {
       console.error('Error generating trip plan:', error);
+      setLoadingStage(null); // Clear loading stage on error
 
       // Provide more specific error messages
       const errorMessage = error.message || 'Failed to generate trip plan. Please try again.';
@@ -207,6 +212,14 @@ export default function Planning() {
           {state?.message && (
             <div className="form-message success-message" role="status">
               {state.message}
+            </div>
+          )}
+
+          {loadingStage && (
+            <div className="loading-progress" role="status" aria-live="polite">
+              <div className="loading-spinner"></div>
+              <p className="loading-text">{loadingStage}</p>
+              <p className="loading-subtext">This typically takes 10-15 seconds</p>
             </div>
           )}
 

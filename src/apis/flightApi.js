@@ -38,7 +38,7 @@ export async function fetchFlightData(tripData) {
             destinationLocationCode: destinationCode,
             departureDate: tripData.departDate,
             adults: tripData.travelers.toString(),
-            max: '10',
+            max: '5',  // Reduced from 10 for faster API response
             currencyCode: 'USD'
         });
 
