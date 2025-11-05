@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { fetchWeatherData, fetchFlightData, fetchHotelData, generateTripPlan } from '../api';
+import { generateTripPlanStreaming } from '../apis/streamingTripPlanApi';
 
 /**
- * Custom hook for progressive trip data loading
- * Loads data in stages: weather → flights → hotels → AI generation
- * Updates state after each stage completes
+ * Custom hook for progressive trip data loading with streaming AI generation
+ * Loads data in stages: weather → flights → hotels → AI generation (streaming)
+ * Updates state after each stage completes, with partial updates during AI streaming
  *
  * @param {Object} tripData - Form data from Planning page
  * @returns {Object} { stage, data, error, isLoading, retry }
@@ -19,6 +20,7 @@ export function useProgressiveTripData(tripData) {
     });
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [streamingProgress, setStreamingProgress] = useState(null); // For partial AI updates
 
     const loadData = async () => {
         // Don't set error if tripData is null - it might be loading
@@ -54,18 +56,39 @@ export function useProgressiveTripData(tripData) {
             }
             setData(prev => ({ ...prev, hotels }));
 
-            // Stage 4: AI Generation
+            // Stage 4: AI Generation with Streaming
             setStage('ai');
-            const plan = await generateTripPlan({
-                weather,
-                flights,
-                hotels,
-                tripData
-            });
+
+            // Callback for streaming partial updates
+            const handleStreamUpdate = (partialPlan) => {
+                setStreamingProgress(partialPlan);
+            };
+
+            // Try streaming first, fallback to non-streaming
+            let plan;
+            try {
+                plan = await generateTripPlanStreaming({
+                    weather,
+                    flights,
+                    hotels,
+                    tripData
+                }, handleStreamUpdate);
+            } catch (streamError) {
+                console.warn('Streaming failed, falling back to non-streaming:', streamError);
+                // Fallback to non-streaming generation
+                plan = await generateTripPlan({
+                    weather,
+                    flights,
+                    hotels,
+                    tripData
+                });
+            }
+
             if (!plan || plan.error) {
                 throw new Error(plan?.error || 'Failed to generate trip plan');
             }
             setData(prev => ({ ...prev, plan }));
+            setStreamingProgress(null); // Clear streaming progress
 
             // Save complete data to sessionStorage
             sessionStorage.setItem('tripPlan', JSON.stringify({
@@ -102,5 +125,5 @@ export function useProgressiveTripData(tripData) {
         loadData();
     };
 
-    return { stage, data, error, isLoading, retry };
+    return { stage, data, error, isLoading, retry, streamingProgress };
 }

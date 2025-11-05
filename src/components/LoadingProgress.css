@@ -44,6 +44,35 @@
   margin: 0;
 }
 
+.streaming-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #4a90e2;
+  font-weight: 500;
+}
+
+.streaming-dot {
+  width: 8px;
+  height: 8px;
+  background: #4a90e2;
+  border-radius: 50%;
+  animation: streamingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes streamingPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+}
+
 .progress-stages {
   display: flex;
   justify-content: space-between;

@@ -39,10 +39,17 @@ const STAGES = ['initializing', 'weather', 'flights', 'hotels', 'ai', 'complete'
  * Loading progress indicator showing current stage of trip data loading
  * @param {Object} props
  * @param {string} props.currentStage - Current loading stage
+ * @param {Object} props.streamingProgress - Partial data from streaming AI
  */
-export default function LoadingProgress({ currentStage }) {
+export default function LoadingProgress({ currentStage, streamingProgress }) {
   const currentStageIndex = STAGES.indexOf(currentStage);
   const info = STAGE_INFO[currentStage] || STAGE_INFO.initializing;
+
+  // Show streaming progress if available
+  const isStreaming = currentStage === 'ai' && streamingProgress;
+  const streamingMessage = isStreaming && streamingProgress.summary
+    ? 'Generating itinerary in real-time...'
+    : info.description;
 
   return (
     <div className="loading-progress">
@@ -50,7 +57,13 @@ export default function LoadingProgress({ currentStage }) {
         <div className="loading-icon">{info.icon}</div>
         <div className="loading-text">
           <h2 className="loading-title">{info.label}</h2>
-          <p className="loading-description">{info.description}</p>
+          <p className="loading-description">{streamingMessage}</p>
+          {isStreaming && (
+            <div className="streaming-indicator">
+              <span className="streaming-dot"></span>
+              <span>Streaming updates...</span>
+            </div>
+          )}
         </div>
       </div>
 

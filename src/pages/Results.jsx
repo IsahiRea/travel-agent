@@ -84,8 +84,8 @@ export default function Results() {
     }
   }, [navigate]);
 
-  // Use progressive loading hook
-  const { stage, data, error, retry } = useProgressiveTripData(tripData);
+  // Use progressive loading hook with streaming support
+  const { stage, data, error, retry, streamingProgress } = useProgressiveTripData(tripData);
 
   // Show error state
   if (error) {
@@ -128,7 +128,7 @@ export default function Results() {
 
       {/* Show loading progress while data is being fetched */}
       {stage !== 'complete' && (
-        <LoadingProgress currentStage={stage} />
+        <LoadingProgress currentStage={stage} streamingProgress={streamingProgress} />
       )}
 
       <div className="trip-details">
