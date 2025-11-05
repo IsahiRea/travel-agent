@@ -113,6 +113,10 @@ export default function Results() {
   const hotelData = data.hotels;
   const tripPlan = data.plan;
 
+  // Use partial streaming data if available and full plan not yet loaded
+  const streamingPartialPlan = streamingProgress?.partialData;
+  const displayPlan = tripPlan || streamingPartialPlan;
+
   return (
     <div className="results-page">
       <div className="results-nav">
@@ -132,18 +136,21 @@ export default function Results() {
       )}
 
       <div className="trip-details">
-        {tripPlan && (
+        {displayPlan && (
           <>
             <div className="hero-banner">
-              <img alt={tripPlan.destination} className="hero-image" src={imgHeroEiffel} />
+              <img alt={displayPlan.destination || 'Your destination'} className="hero-image" src={imgHeroEiffel} />
               <div className="hero-overlay" />
               <div className="hero-content">
                 <div className="itinerary-badge">
                   <img alt="" className="badge-icon" src={imgIconItinerary} />
                   <span className="results-badge-text">Your Itinerary</span>
+                  {streamingPartialPlan && !tripPlan && (
+                    <span className="streaming-badge">Generating...</span>
+                  )}
                 </div>
                 <div className="hero-info">
-                  <h1 className="trip-title">Trip to {tripPlan.destination}</h1>
+                  <h1 className="trip-title">Trip to {displayPlan.destination || tripData.arriveAt}</h1>
                   <div className="trip-meta">
                     <div className="meta-card">
                       <img alt="" className="meta-icon" src={imgIconCalendar} />
@@ -191,25 +198,25 @@ export default function Results() {
         {!weatherData && stage !== 'complete' && stage !== 'initializing' && (
           <LoadingSkeleton type="weather" />
         )}
-        {tripPlan?.rawWeatherData && tripPlan.rawWeatherData.forecast && tripPlan.rawWeatherData.forecast.length > 0 && (
+        {displayPlan?.rawWeatherData && displayPlan.rawWeatherData.forecast && displayPlan.rawWeatherData.forecast.length > 0 && (
           <div className="weather-card">
             <div className="weather-icon" />
             <div className="weather-content">
               <h3 className="card-title">Weather Forecast</h3>
               <p className="card-description">
-                {tripPlan.rawWeatherData.summary || 'Weather information for your destination.'}
+                {displayPlan.rawWeatherData.summary || 'Weather information for your destination.'}
               </p>
               <div className="temp-boxes">
                 <div className="temp-box">
                   <span className="temp-label">Low</span>
                   <span className="temp-value">
-                    {Math.min(...tripPlan.rawWeatherData.forecast.map(d => d.tempMin))}°C
+                    {Math.min(...displayPlan.rawWeatherData.forecast.map(d => d.tempMin))}°C
                   </span>
                 </div>
                 <div className="temp-box">
                   <span className="temp-label">High</span>
                   <span className="temp-value">
-                    {Math.max(...tripPlan.rawWeatherData.forecast.map(d => d.tempMax))}°C
+                    {Math.max(...displayPlan.rawWeatherData.forecast.map(d => d.tempMax))}°C
                   </span>
                 </div>
               </div>
@@ -221,24 +228,27 @@ export default function Results() {
         {!flightData && (stage === 'flights' || (stage !== 'complete' && stage !== 'initializing' && stage !== 'weather')) && (
           <LoadingSkeleton type="flight" />
         )}
-        {tripPlan?.selectedFlight && (
+        {displayPlan?.selectedFlight && (
           <div className="recommendation-card">
             <div className="rec-image-container">
               <img alt="Flight" className="rec-image" src={imgFlightWing} />
               <div className="rec-overlay" />
               <div className="rec-badge best-deal">Best Value</div>
+              {streamingPartialPlan && !tripPlan && (
+                <div className="streaming-overlay">Generating...</div>
+              )}
             </div>
             <div className="rec-content">
               <div className="rec-icon flight-icon" />
               <div className="rec-details">
                 <h3 className="card-title">Recommended Flight</h3>
                 <p className="card-description">
-                  {tripPlan.selectedFlight.outboundDetails}
-                  {tripPlan.selectedFlight.returnDetails && ` • ${tripPlan.selectedFlight.returnDetails}`}
+                  {displayPlan.selectedFlight.outboundDetails}
+                  {displayPlan.selectedFlight.returnDetails && ` • ${displayPlan.selectedFlight.returnDetails}`}
                 </p>
                 <div className="tag-group">
-                  <span className="tag">{tripPlan.selectedFlight.airline}</span>
-                  <span className="tag">${tripPlan.selectedFlight.totalCost.toFixed(2)}</span>
+                  <span className="tag">{displayPlan.selectedFlight.airline}</span>
+                  <span className="tag">${displayPlan.selectedFlight.totalCost.toFixed(2)}</span>
                   <span className="tag">{tripData.travelers} {tripData.travelers === 1 ? 'Traveler' : 'Travelers'}</span>
                 </div>
               </div>
@@ -251,22 +261,25 @@ export default function Results() {
         {!hotelData && (stage === 'hotels' || (stage !== 'complete' && stage !== 'initializing' && stage !== 'weather' && stage !== 'flights')) && (
           <LoadingSkeleton type="hotel" />
         )}
-        {tripPlan?.selectedHotel && (
+        {displayPlan?.selectedHotel && (
           <div className="recommendation-card">
             <div className="rec-image-container">
               <img alt="Hotel" className="rec-image" src={imgHotelRoom} />
               <div className="rec-overlay" />
-              <div className="rec-badge rating">{tripPlan.selectedHotel.rating}★ Rating</div>
+              <div className="rec-badge rating">{displayPlan.selectedHotel.rating}★ Rating</div>
+              {streamingPartialPlan && !tripPlan && (
+                <div className="streaming-overlay">Generating...</div>
+              )}
             </div>
             <div className="rec-content">
               <div className="rec-icon hotel-icon" />
               <div className="rec-details">
-                <h3 className="card-title">{tripPlan.selectedHotel.name}</h3>
+                <h3 className="card-title">{displayPlan.selectedHotel.name}</h3>
                 <p className="card-description">
-                  Located in {tripPlan.selectedHotel.location}. Total cost: ${tripPlan.selectedHotel.totalCost.toFixed(2)} for your stay.
+                  Located in {displayPlan.selectedHotel.location}. Total cost: ${displayPlan.selectedHotel.totalCost.toFixed(2)} for your stay.
                 </p>
                 <div className="tag-group">
-                  {tripPlan.selectedHotel.amenities && tripPlan.selectedHotel.amenities.slice(0, 3).map((amenity, idx) => (
+                  {displayPlan.selectedHotel.amenities && displayPlan.selectedHotel.amenities.slice(0, 3).map((amenity, idx) => (
                     <span key={idx} className="tag">{amenity.replace(/_/g, ' ')}</span>
                   ))}
                 </div>
@@ -276,51 +289,59 @@ export default function Results() {
           </div>
         )}
 
-        {/* Itinerary Section - Show skeleton while loading */}
-        {!tripPlan && stage === 'ai' && (
+        {/* Itinerary Section - Show skeleton while loading if no partial data */}
+        {!displayPlan && stage === 'ai' && (
           <LoadingSkeleton type="itinerary" />
         )}
 
-        {tripPlan?.budgetAnalysis && (
+        {/* Show streaming indicator for itinerary if generating */}
+        {streamingPartialPlan && !tripPlan && streamingPartialPlan.dailyItineraryCount > 0 && (
+          <div className="streaming-message">
+            <div className="streaming-dot-pulse"></div>
+            Generating daily itinerary... ({streamingPartialPlan.dailyItineraryCount} days in progress)
+          </div>
+        )}
+
+        {displayPlan?.budgetAnalysis && (
           <div className="budget-section">
             <h2 className="section-title">Budget Breakdown</h2>
             <div className="budget-grid">
               <div className="budget-item">
                 <span className="budget-label">Flights</span>
-                <span className="budget-value">${tripPlan.budgetAnalysis.flights.toFixed(2)}</span>
+                <span className="budget-value">${displayPlan.budgetAnalysis.flights.toFixed(2)}</span>
               </div>
               <div className="budget-item">
                 <span className="budget-label">Accommodation</span>
-                <span className="budget-value">${tripPlan.budgetAnalysis.accommodation.toFixed(2)}</span>
+                <span className="budget-value">${displayPlan.budgetAnalysis.accommodation.toFixed(2)}</span>
               </div>
               <div className="budget-item">
                 <span className="budget-label">Activities</span>
-                <span className="budget-value">${tripPlan.budgetAnalysis.activities.toFixed(2)}</span>
+                <span className="budget-value">${displayPlan.budgetAnalysis.activities.toFixed(2)}</span>
               </div>
               <div className="budget-item">
                 <span className="budget-label">Meals</span>
-                <span className="budget-value">${tripPlan.budgetAnalysis.meals.toFixed(2)}</span>
+                <span className="budget-value">${displayPlan.budgetAnalysis.meals.toFixed(2)}</span>
               </div>
               <div className="budget-item">
                 <span className="budget-label">Transportation</span>
-                <span className="budget-value">${tripPlan.budgetAnalysis.transportation.toFixed(2)}</span>
+                <span className="budget-value">${displayPlan.budgetAnalysis.transportation.toFixed(2)}</span>
               </div>
               <div className="budget-item">
                 <span className="budget-label">Miscellaneous</span>
-                <span className="budget-value">${tripPlan.budgetAnalysis.miscellaneous.toFixed(2)}</span>
+                <span className="budget-value">${displayPlan.budgetAnalysis.miscellaneous.toFixed(2)}</span>
               </div>
               <div className="budget-item budget-total">
                 <span className="budget-label">Total Estimated Cost</span>
-                <span className="budget-value">${tripPlan.budgetAnalysis.total.toFixed(2)}</span>
+                <span className="budget-value">${displayPlan.budgetAnalysis.total.toFixed(2)}</span>
               </div>
             </div>
           </div>
         )}
 
-        {tripPlan?.dailyItinerary && tripPlan.dailyItinerary.length > 0 && (
+        {displayPlan?.dailyItinerary && displayPlan.dailyItinerary.length > 0 && (
           <div className="itinerary-section">
             <h2 className="section-title">Daily Itinerary</h2>
-            {tripPlan.dailyItinerary.map((day) => (
+            {displayPlan.dailyItinerary.map((day) => (
               <div key={day.day} className="day-card">
                 <div className="day-header">
                   <h3 className="day-title">Day {day.day}</h3>
@@ -371,32 +392,32 @@ export default function Results() {
           </div>
         )}
 
-        {tripPlan?.travelTips && tripPlan.travelTips.length > 0 && (
+        {displayPlan?.travelTips && displayPlan.travelTips.length > 0 && (
           <div className="tips-section">
             <h2 className="section-title">Travel Tips</h2>
             <ul className="tips-list">
-              {tripPlan.travelTips.map((tip, idx) => (
+              {displayPlan.travelTips.map((tip, idx) => (
                 <li key={idx} className="tip-item">{tip}</li>
               ))}
             </ul>
           </div>
         )}
 
-        {tripPlan?.packingRecommendations && tripPlan.packingRecommendations.length > 0 && (
+        {displayPlan?.packingRecommendations && displayPlan.packingRecommendations.length > 0 && (
           <div className="packing-section">
             <h2 className="section-title">Packing Recommendations</h2>
             <ul className="packing-list">
-              {tripPlan.packingRecommendations.map((item, idx) => (
+              {displayPlan.packingRecommendations.map((item, idx) => (
                 <li key={idx} className="packing-item">{item}</li>
               ))}
             </ul>
           </div>
         )}
 
-        {tripPlan?.summary && (
+        {displayPlan?.summary && (
           <div className="summary-section">
             <h2 className="section-title">Trip Summary</h2>
-            <p className="summary-text">{tripPlan.summary}</p>
+            <p className="summary-text">{displayPlan.summary}</p>
           </div>
         )}
       </div>

@@ -1029,3 +1029,116 @@
     padding: 28px;
   }
 }
+
+/* Streaming Indicators - Matching site style */
+.streaming-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  margin-left: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+  color: white;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.streaming-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 8px 16px;
+  background: rgba(74, 144, 226, 0.95);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  animation: pulse-fade 2s ease-in-out infinite;
+}
+
+.streaming-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #f0f8ff;
+  border: 1px solid #4a90e2;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #2d2d2d;
+  animation: slide-in 0.3s ease-out;
+  margin-bottom: 16px;
+}
+
+.streaming-dot-pulse {
+  width: 8px;
+  height: 8px;
+  background: #4a90e2;
+  border-radius: 50%;
+  animation: dot-pulse 1.5s ease-in-out infinite;
+}
+
+/* Animations - Matching site style */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes pulse-fade {
+  0%, 100% {
+    opacity: 0.95;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes dot-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsiveness for streaming indicators */
+@media (max-width: 768px) {
+  .streaming-badge {
+    font-size: 10px;
+    padding: 3px 10px;
+  }
+
+  .streaming-overlay {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  .streaming-message {
+    font-size: 13px;
+    padding: 12px 16px;
+  }
+}

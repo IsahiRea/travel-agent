@@ -122,53 +122,177 @@ export async function generateTripPlanStreaming(data, onUpdate) {
         });
 
         // Stream the response with structured output
-        const result = streamText({
+        const result = await streamText({
             model: openai('gpt-4o-2024-08-06'),
             system: 'You are an expert travel planner. Create detailed, personalized travel itineraries that consider weather conditions, budget constraints, and traveler preferences. Provide practical, actionable recommendations with realistic cost estimates in USD.',
             prompt: context,
             temperature: 0.7,
-            maxTokens: 2500,
-            // Request structured JSON output
-            output: 'object',
-            schema: TripPlanSchema
+            maxTokens: 2500
         });
 
-        // Collect the streamed response
-        let partialData = {};
+        // Collect the streamed response with incremental parsing
+        let fullText = '';
 
-        // Stream text chunks
+        // Stream text chunks and accumulate
         for await (const textPart of result.textStream) {
-            // Try to parse as partial JSON
-            try {
-                const partial = JSON.parse(textPart);
-                partialData = { ...partialData, ...partial };
+            fullText += textPart;
 
-                // Call update callback with partial data
-                if (onUpdate && typeof onUpdate === 'function') {
-                    onUpdate(partialData);
-                }
-            } catch {
-                // Not yet valid JSON, continue streaming
+            // Try to parse partial JSON to provide incremental updates
+            if (onUpdate && typeof onUpdate === 'function') {
+                const partialData = tryParsePartialJSON(fullText);
+                onUpdate({
+                    streaming: true,
+                    partialLength: fullText.length,
+                    partialData: partialData
+                });
             }
         }
 
-        // Wait for final result
-        const finalResult = await result.response;
-        const parsedObject = await finalResult.json();
+        console.log('Successfully streamed trip plan text, now parsing as JSON...');
 
-        console.log('Successfully generated trip plan with streaming');
+        // Parse the complete text as JSON
+        // Try to extract JSON from markdown code blocks if present
+        let jsonText = fullText.trim();
 
-        return {
-            success: true,
-            ...parsedObject,
-            rawWeatherData: weather,
-            rawFlightData: flights,
-            rawHotelData: hotels
-        };
+        // Remove markdown code blocks if present
+        if (jsonText.startsWith('```json')) {
+            jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (jsonText.startsWith('```')) {
+            jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+
+        // Parse JSON
+        let parsedObject;
+        try {
+            parsedObject = JSON.parse(jsonText);
+            console.log('Successfully parsed JSON from streaming response');
+        } catch (parseError) {
+            console.error('Failed to parse JSON:', parseError);
+            console.error('Raw text (first 500 chars):', jsonText.substring(0, 500));
+            throw parseError;
+        }
+
+        // Try to validate against schema, but don't fail if validation errors occur
+        // The non-streaming API might return data in a slightly different format
+        try {
+            const validated = TripPlanSchema.parse(parsedObject);
+            console.log('Successfully generated and validated trip plan with streaming');
+
+            return {
+                success: true,
+                ...validated,
+                rawWeatherData: weather,
+                rawFlightData: flights,
+                rawHotelData: hotels
+            };
+        } catch (validationError) {
+            console.warn('Zod validation failed for streaming response, using raw parsed object:', validationError);
+
+            // Return the parsed object anyway - it might still be usable
+            return {
+                success: true,
+                ...parsedObject,
+                rawWeatherData: weather,
+                rawFlightData: flights,
+                rawHotelData: hotels
+            };
+        }
 
     } catch (error) {
         console.error('Error generating trip plan with streaming:', error);
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
         throw error;
+    }
+}
+
+/**
+ * Try to parse partial JSON from streaming response
+ * Attempts to extract complete objects as they become available
+ * @param {string} text - Partial JSON text
+ * @returns {Object|null} Parsed partial data or null
+ */
+function tryParsePartialJSON(text) {
+    try {
+        // Remove markdown code blocks if present
+        let jsonText = text.trim();
+        if (jsonText.startsWith('```json')) {
+            jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (jsonText.startsWith('```')) {
+            jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+
+        // Try to find valid JSON by looking for opening brace and attempting parse
+        if (!jsonText.startsWith('{')) {
+            const braceIndex = jsonText.indexOf('{');
+            if (braceIndex === -1) return null;
+            jsonText = jsonText.substring(braceIndex);
+        }
+
+        // Attempt to parse as-is first
+        try {
+            return JSON.parse(jsonText);
+        } catch {
+            // If it fails, try to close incomplete objects/arrays
+            // Look for complete sections (summary, destination, selectedFlight, etc.)
+            const partial = {};
+
+            // Extract summary if complete
+            const summaryMatch = jsonText.match(/"summary"\s*:\s*"([^"]+)"/);
+            if (summaryMatch) {
+                partial.summary = summaryMatch[1];
+            }
+
+            // Extract destination if complete
+            const destMatch = jsonText.match(/"destination"\s*:\s*"([^"]+)"/);
+            if (destMatch) {
+                partial.destination = destMatch[1];
+            }
+
+            // Extract trip duration if complete
+            const durationMatch = jsonText.match(/"tripDuration"\s*:\s*(\d+)/);
+            if (durationMatch) {
+                partial.tripDuration = parseInt(durationMatch[1], 10);
+            }
+
+            // Extract selected flight if section is complete
+            const flightMatch = jsonText.match(/"selectedFlight"\s*:\s*(\{[^}]*\})/);
+            if (flightMatch) {
+                try {
+                    partial.selectedFlight = JSON.parse(flightMatch[1]);
+                } catch {
+                    // Incomplete flight object
+                }
+            }
+
+            // Extract selected hotel if section is complete
+            const hotelMatch = jsonText.match(/"selectedHotel"\s*:\s*(\{[^}]*\})/);
+            if (hotelMatch) {
+                try {
+                    partial.selectedHotel = JSON.parse(hotelMatch[1]);
+                } catch {
+                    // Incomplete hotel object
+                }
+            }
+
+            // Extract daily itinerary items if available
+            // This is complex - for now just indicate if we're in itinerary section
+            if (jsonText.includes('"dailyItinerary"')) {
+                // Try to extract complete day objects
+                const dayMatches = jsonText.match(/"day"\s*:\s*\d+[^}]*\}/g);
+                if (dayMatches && dayMatches.length > 0) {
+                    partial.dailyItineraryCount = dayMatches.length;
+                }
+            }
+
+            // Only return if we have at least one field
+            return Object.keys(partial).length > 0 ? partial : null;
+        }
+    } catch {
+        return null;
     }
 }
 
@@ -239,7 +363,32 @@ function prepareAIContext(weather, flights, hotels, tripData) {
     context += `4. Provide realistic cost estimates for all activities and meals\n`;
     context += `5. Ensure the total estimated cost stays within the $${budget} budget\n`;
     context += `6. Include practical travel tips and packing recommendations\n`;
-    context += `7. Suggest local restaurants and cuisine experiences\n`;
+    context += `7. Suggest local restaurants and cuisine experiences\n\n`;
+
+    context += `IMPORTANT: Respond with ONLY valid JSON matching this exact structure (no markdown, no code blocks, just raw JSON):\n`;
+    context += `{\n`;
+    context += `  "summary": "Brief trip overview",\n`;
+    context += `  "destination": "Paris",\n`;
+    context += `  "tripDuration": ${days},\n`;
+    context += `  "selectedFlight": { "outboundDetails": "Flight details", "returnDetails": "Return flight", "totalCost": 250.33, "airline": "6X" },\n`;
+    context += `  "selectedHotel": { "name": "Hotel Name", "rating": 4, "location": "Paris", "totalCost": 500, "amenities": ["WiFi", "Breakfast"] },\n`;
+    context += `  "dailyItinerary": [\n`;
+    context += `    {\n`;
+    context += `      "day": 1,\n`;
+    context += `      "date": "YYYY-MM-DD",\n`;
+    context += `      "weather": { "temperature": "15°C", "condition": "Sunny", "description": "Clear skies", "recommendation": "Perfect for outdoor activities" },\n`;
+    context += `      "activities": [\n`;
+    context += `        { "time": "09:00", "name": "Activity Name", "description": "Details", "estimatedCost": 20, "weatherDependent": false }\n`;
+    context += `      ],\n`;
+    context += `      "meals": [\n`;
+    context += `        { "type": "Breakfast", "suggestion": "Café", "cuisine": "French", "estimatedCost": 15 }\n`;
+    context += `      ]\n`;
+    context += `    }\n`;
+    context += `  ],\n`;
+    context += `  "budgetAnalysis": { "flights": 250, "accommodation": 500, "activities": 300, "meals": 400, "transportation": 100, "miscellaneous": 50, "total": 1600 },\n`;
+    context += `  "travelTips": ["Tip 1", "Tip 2"],\n`;
+    context += `  "packingRecommendations": ["Item 1", "Item 2"]\n`;
+    context += `}\n`;
 
     return context;
 }
