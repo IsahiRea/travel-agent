@@ -12,16 +12,22 @@ function extractAirportCode(details) {
 
 /**
  * Generate search link for flight booking
- * Uses Google Flights for a universal search experience with specific airport codes
- * @param {Object} flight - Flight data from Results
+ * Uses Google Flights with exact airport codes, dates, and times
+ * @param {Object} flight - Flight data from Results (includes originCode, destinationCode, etc.)
  * @param {Object} tripData - Trip form data with dates
  * @returns {string} Booking search URL
  */
 export function generateFlightBookingLink(flight, tripData) {
   try {
-    // Extract airport codes from flight details if available
-    const originCode = extractAirportCode(flight.outboundDetails);
-    const destCode = extractAirportCode(flight.outboundDetails?.split(' to ')[1]);
+    // Prefer stored airport codes over extraction
+    let originCode = flight.originCode;
+    let destCode = flight.destinationCode;
+
+    // Fallback: Extract from flight details string if codes not available
+    if (!originCode || !destCode) {
+      originCode = extractAirportCode(flight.outboundDetails);
+      destCode = extractAirportCode(flight.outboundDetails?.split(' to ')[1]);
+    }
 
     // Build Google Flights URL with specific parameters
     if (originCode && destCode && tripData.departDate) {
@@ -30,20 +36,33 @@ export function generateFlightBookingLink(flight, tripData) {
       const params = new URLSearchParams();
 
       // Format: flights from ORIGIN to DEST on YYYY-MM-DD
-      let query = `flights from ${originCode} to ${destCode}`;
-      if (tripData.departDate) {
-        query += ` on ${tripData.departDate}`;
-      }
-      if (tripData.returnDate) {
-        query += ` returning ${tripData.returnDate}`;
-      }
+      let query = `${originCode} to ${destCode}`;
 
       params.set('q', query);
+      params.set('curr', 'USD');
+      params.set('hl', 'en');
 
-      // Add travelers
-      if (tripData.travelers > 1) {
-        params.set('curr', 'USD');
-        params.set('hl', 'en');
+      // Add flight details as URL fragments for better matching
+      if (tripData.departDate) {
+        params.set('d', tripData.departDate.replace(/-/g, ''));
+      }
+      if (tripData.returnDate && flight.returnOriginCode) {
+        params.set('r', tripData.returnDate.replace(/-/g, ''));
+      }
+
+      // Add number of travelers
+      if (tripData.travelers) {
+        params.set('adults', tripData.travelers.toString());
+      }
+
+      // Add airline preference if available
+      if (flight.airline) {
+        params.set('airline', flight.airline);
+      }
+
+      // Add stops preference
+      if (typeof flight.stops === 'number') {
+        params.set('stops', flight.stops.toString());
       }
 
       return `${baseUrl}?${params.toString()}`;

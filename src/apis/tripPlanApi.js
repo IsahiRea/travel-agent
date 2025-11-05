@@ -73,7 +73,18 @@ const TripPlanSchema = z.object({
         outboundDetails: z.string(),
         returnDetails: z.string(),
         totalCost: z.number(),
-        airline: z.string()
+        airline: z.string(),
+        // Additional fields for booking links
+        flightId: z.string().optional(),
+        originCode: z.string().optional(),
+        destinationCode: z.string().optional(),
+        departureTime: z.string().optional(),
+        arrivalTime: z.string().optional(),
+        stops: z.number().optional(),
+        returnOriginCode: z.string().optional(),
+        returnDestinationCode: z.string().optional(),
+        returnDepartureTime: z.string().optional(),
+        returnArrivalTime: z.string().optional()
     }),
     selectedHotel: z.object({
         name: z.string(),
@@ -373,7 +384,18 @@ function getMockTripPlan(data) {
                 ? `${selectedFlight.return.departure.airport} to ${selectedFlight.return.arrival.airport} via ${selectedFlight.airline}`
                 : 'One-way flight',
             totalCost: flightCost,
-            airline: selectedFlight.airline
+            airline: selectedFlight.airline,
+            // Store full flight data for booking links
+            flightId: selectedFlight.id,
+            originCode: selectedFlight.outbound.departure.airport,
+            destinationCode: selectedFlight.outbound.arrival.airport,
+            departureTime: selectedFlight.outbound.departure.time,
+            arrivalTime: selectedFlight.outbound.arrival.time,
+            stops: selectedFlight.outbound.stops,
+            returnOriginCode: selectedFlight.return?.departure?.airport,
+            returnDestinationCode: selectedFlight.return?.arrival?.airport,
+            returnDepartureTime: selectedFlight.return?.departure?.time,
+            returnArrivalTime: selectedFlight.return?.arrival?.time
         },
         selectedHotel: {
             name: selectedHotel.name,
