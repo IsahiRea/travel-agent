@@ -261,6 +261,68 @@ async function getAirportCode(cityName, accessToken) {
 }
 
 /**
+ * Search for city/airport suggestions for autocomplete
+ * @param {string} keyword - Search keyword (city or airport name)
+ * @returns {Promise<Array>} Array of location suggestions
+ */
+export async function searchCityAirports(keyword) {
+    try {
+        const normalized = keyword.trim();
+
+        // Don't search for very short queries
+        if (normalized.length < 2) {
+            return [];
+        }
+
+        // Get access token
+        const accessToken = await getAmadeusAccessToken();
+
+        // Search using Amadeus Location API
+        const params = new URLSearchParams({
+            subType: 'AIRPORT,CITY',
+            keyword: normalized,
+            'page[limit]': '10'
+        });
+
+        const response = await fetch(
+            `https://test.api.amadeus.com/v1/reference-data/locations?${params}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Accept': 'application/json'
+                }
+            }
+        );
+
+        if (!response.ok) {
+            console.warn(`Location search failed for "${keyword}"`);
+            return [];
+        }
+
+        const data = await response.json();
+
+        // Handle empty results
+        if (!data.data || data.data.length === 0) {
+            return [];
+        }
+
+        // Transform results to simpler format
+        return data.data.map(location => ({
+            cityName: location.address?.cityName || location.name,
+            iataCode: location.iataCode,
+            countryCode: location.address?.countryCode,
+            subType: location.subType,
+            name: location.name
+        }));
+
+    } catch (error) {
+        console.error('Error searching locations:', error);
+        return [];
+    }
+}
+
+/**
  * Fallback function to get airport code from hardcoded mapping
  * @param {string} cityName - City name
  * @returns {string} IATA airport code

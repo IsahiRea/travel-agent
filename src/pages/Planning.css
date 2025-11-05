@@ -137,6 +137,45 @@
   text-align: center;
 }
 
+/* Trip Type Toggle */
+.trip-type-toggle {
+  display: flex;
+  gap: 8px;
+  background: #f5f5f5;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.toggle-option {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #6b5d53;
+  font-weight: 500;
+}
+
+.toggle-option:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.toggle-option.active {
+  background: white;
+  color: #2d2d2d;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+.toggle-option:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(181, 101, 77, 0.2);
+}
+
 /* Route Section */
 .route-section {
   border: 1px solid #e5ded7;
@@ -186,6 +225,12 @@
   width: 20px;
   height: 20px;
   pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure autocomplete wrapper takes full width */
+.input-wrapper .autocomplete-wrapper {
+  width: 100%;
 }
 
 .location-input,

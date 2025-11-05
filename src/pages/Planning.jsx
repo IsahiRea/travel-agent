@@ -1,5 +1,7 @@
 import { useState, useActionState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import LocationAutocomplete from '../components/LocationAutocomplete';
+import { usePersistedState } from '../hooks/usePersistedState';
 import './Planning.css';
 
 // Lazy load SVG icons to reduce initial bundle size
@@ -13,16 +15,20 @@ const imgIconSwap = new URL('../assets/images/icons/swap.svg', import.meta.url).
 const imgIconSwap2 = new URL('../assets/images/icons/swap2.svg', import.meta.url).href;
 const imgIconCalendar = new URL('../assets/images/icons/calendar.svg', import.meta.url).href;
 
-//TODO: Add location autocomplete (e.g. Google Places API) for depart/arrive fields
-//TODO: Save form state in localStorage to persist on refresh
 //TODO: Add option for one-way trips (hide return date)
 
 
 export default function Planning() {
   const navigate = useNavigate();
-  const [travelers, setTravelers] = useState(1);
-  const [departFrom, setDepartFrom] = useState('New York City');
-  const [arriveAt, setArriveAt] = useState('Paris');
+
+  // Use persisted state for form fields (survives page refresh)
+  const [tripType, setTripType] = usePersistedState('trip-type', 'roundtrip');
+  const [travelers, setTravelers] = usePersistedState('trip-travelers', 1);
+  const [departFrom, setDepartFrom] = usePersistedState('trip-departFrom', 'New York City');
+  const [arriveAt, setArriveAt] = usePersistedState('trip-arriveAt', 'Paris');
+  const [departDate, setDepartDate] = usePersistedState('trip-departDate', '');
+  const [returnDate, setReturnDate] = usePersistedState('trip-returnDate', '');
+  const [budget, setBudget] = usePersistedState('trip-budget', '');
 
   // Field-level error state for validation feedback
   const [fieldErrors, setFieldErrors] = useState({
@@ -57,6 +63,7 @@ export default function Planning() {
     const departDate = formData.get('departDate');
     const returnDate = formData.get('returnDate');
     const budget = formData.get('budget');
+    const currentTripType = formData.get('tripType') || tripType;
 
     // Reset field errors
     const errors = {
@@ -85,9 +92,12 @@ export default function Planning() {
       hasError = true;
     }
 
-    if (!returnDate) {
-      errors.returnDate = 'Return date is required';
-      hasError = true;
+    // Only validate return date for round trips
+    if (currentTripType === 'roundtrip') {
+      if (!returnDate) {
+        errors.returnDate = 'Return date is required for round trips';
+        hasError = true;
+      }
     }
 
     if (!budget) {
@@ -98,21 +108,24 @@ export default function Planning() {
       hasError = true;
     }
 
-    // Validate dates if both are provided
-    if (departDate && returnDate) {
-      const departDateTime = new Date(departDate);
-      const returnDateTime = new Date(returnDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    // Validate dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    if (departDate) {
+      const departDateTime = new Date(departDate);
       if (departDateTime < today) {
         errors.departDate = 'Departure date cannot be in the past';
         hasError = true;
       }
 
-      if (returnDateTime <= departDateTime) {
-        errors.returnDate = 'Return date must be after departure date';
-        hasError = true;
+      // Only validate return date comparison for round trips
+      if (currentTripType === 'roundtrip' && returnDate) {
+        const returnDateTime = new Date(returnDate);
+        if (returnDateTime <= departDateTime) {
+          errors.returnDate = 'Return date must be after departure date';
+          hasError = true;
+        }
       }
     }
 
@@ -129,11 +142,12 @@ export default function Planning() {
 
     // Create trip data object
     const tripData = {
+      tripType: currentTripType,
       travelers: Number(travelers),
       departFrom,
       arriveAt,
       departDate,
-      returnDate,
+      returnDate: currentTripType === 'roundtrip' ? returnDate : null,
       budget: Number(budget)
     };
 
@@ -200,6 +214,29 @@ export default function Planning() {
           )}
 
           <div className="form-section">
+            <label className="form-label" id="tripType-label">Trip Type</label>
+            <div className="trip-type-toggle" role="group" aria-labelledby="tripType-label">
+              <button
+                type="button"
+                className={`toggle-option ${tripType === 'roundtrip' ? 'active' : ''}`}
+                onClick={() => setTripType('roundtrip')}
+                aria-pressed={tripType === 'roundtrip'}
+              >
+                Round Trip
+              </button>
+              <button
+                type="button"
+                className={`toggle-option ${tripType === 'oneway' ? 'active' : ''}`}
+                onClick={() => setTripType('oneway')}
+                aria-pressed={tripType === 'oneway'}
+              >
+                One Way
+              </button>
+            </div>
+            <input type="hidden" name="tripType" value={tripType} />
+          </div>
+
+          <div className="form-section">
             <label className="form-label" id="travelers-label">Number of Travelers</label>
             <div className="counter-container" role="group" aria-labelledby="travelers-label">
               <button
@@ -253,18 +290,14 @@ export default function Planning() {
                 </label>
                 <div className="input-wrapper">
                   <img alt="" className="input-icon" src={imgIconLocation} />
-                  <input
-                    type="text"
+                  <LocationAutocomplete
                     name="departFrom"
-                    className={`location-input ${fieldErrors.departFrom ? 'input-error' : ''}`}
                     value={departFrom}
-                    onChange={(e) => setDepartFrom(e.target.value)}
+                    onChange={setDepartFrom}
                     placeholder="Enter departure city"
                     required
-                    aria-labelledby="departFrom-label"
-                    aria-required="true"
-                    aria-invalid={!!fieldErrors.departFrom}
-                    aria-describedby={fieldErrors.departFrom ? 'departFrom-error' : undefined}
+                    hasError={!!fieldErrors.departFrom}
+                    ariaDescribedby={fieldErrors.departFrom ? 'departFrom-error' : undefined}
                   />
                 </div>
                 {fieldErrors.departFrom && (
@@ -294,18 +327,14 @@ export default function Planning() {
                 </label>
                 <div className="input-wrapper">
                   <img alt="" className="input-icon" src={imgIconLocation} />
-                  <input
-                    type="text"
+                  <LocationAutocomplete
                     name="arriveAt"
-                    className={`location-input ${fieldErrors.arriveAt ? 'input-error' : ''}`}
                     value={arriveAt}
-                    onChange={(e) => setArriveAt(e.target.value)}
+                    onChange={setArriveAt}
                     placeholder="Enter arrival city"
                     required
-                    aria-labelledby="arriveAt-label"
-                    aria-required="true"
-                    aria-invalid={!!fieldErrors.arriveAt}
-                    aria-describedby={fieldErrors.arriveAt ? 'arriveAt-error' : undefined}
+                    hasError={!!fieldErrors.arriveAt}
+                    ariaDescribedby={fieldErrors.arriveAt ? 'arriveAt-error' : undefined}
                   />
                 </div>
                 {fieldErrors.arriveAt && (
@@ -330,6 +359,8 @@ export default function Planning() {
                   type="date"
                   name="departDate"
                   className={`date-input ${fieldErrors.departDate ? 'input-error' : ''}`}
+                  value={departDate}
+                  onChange={(e) => setDepartDate(e.target.value)}
                   required
                   aria-labelledby="departDate-label"
                   aria-required="true"
@@ -344,31 +375,39 @@ export default function Planning() {
               )}
             </div>
 
-            <div className="form-section">
-              <label className="form-label" id="returnDate-label">
-                Return Date
-                <span aria-hidden="true"> *</span>
-                <span className="sr-only">required</span>
-              </label>
-              <div className="input-wrapper">
-                <img alt="" className="input-icon" src={imgIconCalendar} />
-                <input
-                  type="date"
-                  name="returnDate"
-                  className={`date-input ${fieldErrors.returnDate ? 'input-error' : ''}`}
-                  required
-                  aria-labelledby="returnDate-label"
-                  aria-required="true"
-                  aria-invalid={!!fieldErrors.returnDate}
-                  aria-describedby={fieldErrors.returnDate ? 'returnDate-error' : undefined}
-                />
+            {tripType === 'roundtrip' && (
+              <div className="form-section">
+                <label className="form-label" id="returnDate-label">
+                  Return Date
+                  <span aria-hidden="true"> *</span>
+                  <span className="sr-only">required</span>
+                </label>
+                <div className="input-wrapper">
+                  <img alt="" className="input-icon" src={imgIconCalendar} />
+                  <input
+                    type="date"
+                    name="returnDate"
+                    className={`date-input ${fieldErrors.returnDate ? 'input-error' : ''}`}
+                    value={returnDate}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    required
+                    aria-labelledby="returnDate-label"
+                    aria-required="true"
+                    aria-invalid={!!fieldErrors.returnDate}
+                    aria-describedby={fieldErrors.returnDate ? 'returnDate-error' : undefined}
+                  />
+                </div>
+                {fieldErrors.returnDate && (
+                  <span id="returnDate-error" className="field-error-message" role="alert">
+                    {fieldErrors.returnDate}
+                  </span>
+                )}
               </div>
-              {fieldErrors.returnDate && (
-                <span id="returnDate-error" className="field-error-message" role="alert">
-                  {fieldErrors.returnDate}
-                </span>
-              )}
-            </div>
+            )}
+
+            {tripType === 'oneway' && (
+              <input type="hidden" name="returnDate" value="" />
+            )}
           </div>
 
           <div className="form-section">
@@ -383,6 +422,8 @@ export default function Planning() {
                 type="number"
                 name="budget"
                 className={`budget-input ${fieldErrors.budget ? 'input-error' : ''}`}
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
                 placeholder="Enter budget"
                 min="0"
                 required
