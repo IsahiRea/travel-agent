@@ -4,16 +4,11 @@ import { useProgressiveTripData } from '../hooks/useProgressiveTripData';
 import LoadingProgress from '../components/LoadingProgress';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import ErrorDisplay from '../components/ErrorDisplay';
+import Icon from '../components/Icon';
 import './Results.css';
 import imgHeroEiffel from '../assets/images/photos/hero-eiffel.jpg';
 import imgFlightWing from '../assets/images/photos/flight-wing.jpg';
 import imgHotelRoom from '../assets/images/photos/hotel-room.jpg';
-const imgIconBack = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%232d2d2d' viewBox='0 0 24 24'%3E%3Cpath d='M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z'/%3E%3C/svg%3E";
-const imgIconPlan = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%232d2d2d' viewBox='0 0 24 24'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14h-3v3h-2v-3H8v-2h3v-3h2v3h3v2zm-3-7V3.5L18.5 9H13z'/%3E%3C/svg%3E";
-const imgIconItinerary = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z'/%3E%3C/svg%3E";
-const imgIconCalendar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z'/%3E%3C/svg%3E";
-const imgIconArrow = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/%3E%3C/svg%3E";
-const imgIconLocation = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/%3E%3C/svg%3E";
 
 //TODO: Refactor page into smaller components for readability
 //TODO: Add a way to view full flight/hotel details (e.g. link to provider site)
@@ -121,11 +116,11 @@ export default function Results() {
     <div className="results-page">
       <div className="results-nav">
         <button className="nav-button" onClick={() => navigate('/planning')}>
-          <img alt="" className="nav-icon" src={imgIconBack} />
+          <Icon name="back" className="nav-icon" size={16} color="#2d2d2d" alt="Back arrow" />
           <span className="nav-text">Back to Planning</span>
         </button>
         <button className="nav-button secondary" onClick={() => navigate('/planning')}>
-          <img alt="" className="nav-icon" src={imgIconPlan} />
+          <Icon name="plan" className="nav-icon" size={16} color="#2d2d2d" alt="Plan document" />
           <span className="nav-text">Plan Another Trip</span>
         </button>
       </div>
@@ -143,7 +138,7 @@ export default function Results() {
               <div className="hero-overlay" />
               <div className="hero-content">
                 <div className="itinerary-badge">
-                  <img alt="" className="badge-icon" src={imgIconItinerary} />
+                  <Icon name="itinerary" className="badge-icon" size={16} color="white" alt="Itinerary document" />
                   <span className="results-badge-text">Your Itinerary</span>
                   {streamingPartialPlan && !tripPlan && (
                     <span className="streaming-badge">Generating...</span>
@@ -153,18 +148,18 @@ export default function Results() {
                   <h1 className="trip-title">Trip to {displayPlan.destination || tripData.arriveAt}</h1>
                   <div className="trip-meta">
                     <div className="meta-card">
-                      <img alt="" className="meta-icon" src={imgIconCalendar} />
+                      <Icon name="calendar" className="meta-icon" size={20} color="white" alt="Calendar" />
                       <div className="meta-content">
                         <span className="meta-text">{formatDate(tripData.departDate)}</span>
-                        <img alt="" className="arrow-icon" src={imgIconArrow} />
+                        <Icon name="arrowRight" className="arrow-icon" size={16} color="white" alt="to" />
                         <span className="meta-text">{formatDate(tripData.returnDate)}</span>
                       </div>
                     </div>
                     <div className="meta-card">
-                      <img alt="" className="meta-icon" src={imgIconLocation} />
+                      <Icon name="location" className="meta-icon" size={20} color="white" alt="Location" />
                       <div className="meta-content">
                         <span className="meta-text">{tripData.departFrom}</span>
-                        <img alt="" className="arrow-icon" src={imgIconArrow} />
+                        <Icon name="arrowRight" className="arrow-icon" size={16} color="white" alt="to" />
                         <span className="meta-text">{tripData.arriveAt}</span>
                       </div>
                     </div>
@@ -175,7 +170,9 @@ export default function Results() {
 
             <div className="info-grid">
               <div className="info-card">
-                <div className="info-icon travelers-icon" />
+                <div className="info-icon">
+                  <Icon name="travelers" size={24} color="#6b5d53" alt="Travelers" />
+                </div>
                 <div className="info-content">
                   <span className="info-label">Travelers</span>
                   <span className="info-value">
@@ -184,7 +181,9 @@ export default function Results() {
                 </div>
               </div>
               <div className="info-card">
-                <div className="info-icon budget-icon" />
+                <div className="info-icon">
+                  <Icon name="budget" size={20} color="#6b5d53" alt="Budget" />
+                </div>
                 <div className="info-content">
                   <span className="info-label">Total Budget</span>
                   <span className="info-value">${tripData.budget.toLocaleString()}</span>
@@ -200,7 +199,9 @@ export default function Results() {
         )}
         {displayPlan?.rawWeatherData && displayPlan.rawWeatherData.forecast && displayPlan.rawWeatherData.forecast.length > 0 && (
           <div className="weather-card">
-            <div className="weather-icon" />
+            <div className="weather-icon">
+              <Icon name="weather" size={24} color="#6b5d53" alt="Weather" />
+            </div>
             <div className="weather-content">
               <h3 className="card-title">Weather Forecast</h3>
               <p className="card-description">
@@ -239,7 +240,9 @@ export default function Results() {
               )}
             </div>
             <div className="rec-content">
-              <div className="rec-icon flight-icon" />
+              <div className="rec-icon">
+                <Icon name="plane" size={24} color="#6b5d53" alt="Flight" />
+              </div>
               <div className="rec-details">
                 <h3 className="card-title">Recommended Flight</h3>
                 <p className="card-description">
@@ -272,7 +275,9 @@ export default function Results() {
               )}
             </div>
             <div className="rec-content">
-              <div className="rec-icon hotel-icon" />
+              <div className="rec-icon">
+                <Icon name="hotel" size={24} color="#6b5d53" alt="Hotel" />
+              </div>
               <div className="rec-details">
                 <h3 className="card-title">{displayPlan.selectedHotel.name}</h3>
                 <p className="card-description">

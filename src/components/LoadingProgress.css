@@ -15,7 +15,9 @@
 }
 
 .loading-icon {
-  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -114,7 +116,9 @@
 }
 
 .stage-icon {
-  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.3s ease;
 }
 
@@ -129,10 +133,6 @@
   50% {
     transform: translateY(-5px);
   }
-}
-
-.progress-stage.complete .stage-icon {
-  opacity: 0.7;
 }
 
 .stage-label {
@@ -204,9 +204,6 @@
     margin-bottom: 20px;
   }
 
-  .loading-icon {
-    font-size: 28px;
-  }
 
   .loading-title {
     font-size: 16px;
@@ -226,9 +223,6 @@
     padding: 8px 4px;
   }
 
-  .stage-icon {
-    font-size: 20px;
-  }
 
   .stage-label {
     font-size: 10px;
@@ -256,9 +250,6 @@
     margin-bottom: 28px;
   }
 
-  .loading-icon {
-    font-size: 40px;
-  }
 
   .loading-title {
     font-size: 20px;
@@ -270,9 +261,6 @@
     line-height: 22px;
   }
 
-  .stage-icon {
-    font-size: 28px;
-  }
 
   .stage-label {
     font-size: 13px;

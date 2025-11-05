@@ -12,7 +12,9 @@
 }
 
 .error-icon {
-  font-size: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 1rem;
   animation: shake 0.5s ease-in-out;
 }
@@ -90,9 +92,6 @@
     min-height: 300px;
   }
 
-  .error-icon {
-    font-size: 3rem;
-  }
 
   .error-title {
     font-size: 1.25rem;
@@ -115,9 +114,6 @@
     min-height: 500px;
   }
 
-  .error-icon {
-    font-size: 5rem;
-  }
 
   .error-title {
     font-size: 2rem;

@@ -1,34 +1,35 @@
+import Icon from './Icon';
 import './LoadingProgress.css';
 
 const STAGE_INFO = {
   initializing: {
     label: 'Initializing',
-    icon: '⏳',
+    icon: 'hourglass',
     description: 'Setting up your trip...'
   },
   weather: {
     label: 'Weather',
-    icon: '🌤️',
+    icon: 'weather',
     description: 'Checking weather conditions'
   },
   flights: {
     label: 'Flights',
-    icon: '✈️',
+    icon: 'plane',
     description: 'Finding best flights'
   },
   hotels: {
     label: 'Hotels',
-    icon: '🏨',
+    icon: 'hotel',
     description: 'Searching hotels'
   },
   ai: {
     label: 'Itinerary',
-    icon: '✨',
+    icon: 'sparkles',
     description: 'Creating your personalized itinerary'
   },
   complete: {
     label: 'Complete',
-    icon: '✓',
+    icon: 'checkmark',
     description: 'Your trip is ready!'
   }
 };
@@ -54,7 +55,9 @@ export default function LoadingProgress({ currentStage, streamingProgress }) {
   return (
     <div className="loading-progress">
       <div className="loading-header">
-        <div className="loading-icon">{info.icon}</div>
+        <div className="loading-icon">
+          <Icon name={info.icon} size={32} color="#6b5d53" alt={info.label} />
+        </div>
         <div className="loading-text">
           <h2 className="loading-title">{info.label}</h2>
           <p className="loading-description">{streamingMessage}</p>
@@ -80,7 +83,12 @@ export default function LoadingProgress({ currentStage, streamingProgress }) {
               className={`progress-stage ${isComplete ? 'complete' : ''} ${isActive ? 'active' : ''}`}
             >
               <div className="stage-icon">
-                {isComplete ? '✓' : stageInfo.icon}
+                <Icon
+                  name={isComplete ? 'checkmark' : stageInfo.icon}
+                  size={24}
+                  color={isActive ? '#b5654d' : '#6b5d53'}
+                  alt={stageInfo.label}
+                />
               </div>
               <span className="stage-label">{stageInfo.label}</span>
             </div>

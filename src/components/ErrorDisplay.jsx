@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import Icon from './Icon';
 import './ErrorDisplay.css';
 
 /**
@@ -13,7 +14,9 @@ export default function ErrorDisplay({ message, onRetry }) {
   return (
     <div className="error-display">
       <div className="error-content">
-        <div className="error-icon">⚠️</div>
+        <div className="error-icon">
+          <Icon name="warning" size={48} color="#d4a574" alt="Warning" />
+        </div>
         <h2 className="error-title">Something went wrong</h2>
         <p className="error-message">{message || 'An unexpected error occurred. Please try again.'}</p>
 
