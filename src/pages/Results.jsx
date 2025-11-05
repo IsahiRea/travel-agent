@@ -5,13 +5,13 @@ import LoadingProgress from '../components/LoadingProgress';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import ErrorDisplay from '../components/ErrorDisplay';
 import Icon from '../components/Icon';
+import { generateFlightBookingLink, generateHotelBookingLink, trackBookingClick } from '../utils/bookingLinks';
 import './Results.css';
 import imgHeroEiffel from '../assets/images/photos/hero-eiffel.jpg';
 import imgFlightWing from '../assets/images/photos/flight-wing.jpg';
 import imgHotelRoom from '../assets/images/photos/hotel-room.jpg';
 
 //TODO: Refactor page into smaller components for readability
-//TODO: Add a way to view full flight/hotel details (e.g. link to provider site)
 //TODO: Add different hero images based on destination (use unsplash API?)
 //TODO: Update Desktop Design for better use of space (maybe 2-column layout with image sidebar?)
 
@@ -111,6 +111,30 @@ export default function Results() {
   // Use partial streaming data if available and full plan not yet loaded
   const streamingPartialPlan = streamingProgress?.partialData;
   const displayPlan = tripPlan || streamingPartialPlan;
+
+  // Handler for flight booking button click
+  const handleFlightBookingClick = () => {
+    if (!displayPlan?.selectedFlight || !tripData) return;
+
+    // Track the click
+    trackBookingClick('flight', displayPlan.selectedFlight);
+
+    // Generate and open booking link
+    const bookingUrl = generateFlightBookingLink(displayPlan.selectedFlight, tripData);
+    window.open(bookingUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  // Handler for hotel booking button click
+  const handleHotelBookingClick = () => {
+    if (!displayPlan?.selectedHotel || !tripData) return;
+
+    // Track the click
+    trackBookingClick('hotel', displayPlan.selectedHotel);
+
+    // Generate and open booking link
+    const bookingUrl = generateHotelBookingLink(displayPlan.selectedHotel, tripData);
+    window.open(bookingUrl, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div className="results-page">
@@ -256,7 +280,13 @@ export default function Results() {
                 </div>
               </div>
             </div>
-            <button className="book-button">View Details</button>
+            <button
+              className="book-button"
+              onClick={handleFlightBookingClick}
+              aria-label={`Search for ${displayPlan.selectedFlight.airline} flights`}
+            >
+              View Details
+            </button>
           </div>
         )}
 
@@ -290,7 +320,13 @@ export default function Results() {
                 </div>
               </div>
             </div>
-            <button className="book-button">View Details</button>
+            <button
+              className="book-button"
+              onClick={handleHotelBookingClick}
+              aria-label={`Search for ${displayPlan.selectedHotel.name} hotel`}
+            >
+              View Details
+            </button>
           </div>
         )}
 

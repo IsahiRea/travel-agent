@@ -500,3 +500,31 @@
     line-height: 24px;
   }
 }
+
+/* Form Validation Error Styles */
+.input-error {
+  border: 2px solid #dc2626 !important;
+  background-color: #fef2f2;
+}
+
+.field-error-message {
+  color: #dc2626;
+  font-size: 13px;
+  line-height: 18px;
+  margin-top: 4px;
+  display: block;
+  font-family: Arial, sans-serif;
+}
+
+/* Screen Reader Only class for accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
