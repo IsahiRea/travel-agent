@@ -1,6 +1,5 @@
 import { useState, useActionState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchWeatherData, fetchFlightData, fetchHotelData, generateTripPlan } from '../api';
 import './Planning.css';
 
 // Lazy load SVG icons to reduce initial bundle size
@@ -27,7 +26,6 @@ export default function Planning() {
   const [travelers, setTravelers] = useState(1);
   const [departFrom, setDepartFrom] = useState('New York City');
   const [arriveAt, setArriveAt] = useState('Paris');
-  const [loadingStage, setLoadingStage] = useState(null);
 
   const handleIncrement = () => setTravelers(prev => prev + 1);
   const handleDecrement = () => setTravelers(prev => Math.max(1, prev - 1));
@@ -90,103 +88,37 @@ export default function Planning() {
       };
     }
 
+    // Create trip data object
+    const tripData = {
+      travelers: Number(travelers),
+      departFrom,
+      arriveAt,
+      departDate,
+      returnDate,
+      budget: Number(budget)
+    };
+
+    console.log('Saving trip form data and navigating to results...');
+
+    // Store form data in sessionStorage
     try {
-      const tripData = {
-        travelers: Number(travelers),
-        departFrom,
-        arriveAt,
-        departDate,
-        returnDate,
-        budget: Number(budget)
-      };
-
-      console.log('Fetching trip data for:', tripData);
-
-      // Fetch all API data in parallel using Promise.all for better performance
-      setLoadingStage('Searching for flights, hotels, and checking weather...');
-      const [weatherData, flightData, hotelData] = await Promise.all([
-        fetchWeatherData(tripData),
-        fetchFlightData(tripData),
-        fetchHotelData(tripData)
-      ]);
-
-      console.log('All API data fetched successfully');
-      console.log('Weather:', weatherData?.success ? 'Success' : 'Failed');
-      console.log('Flights:', flightData?.success ? `${flightData.count} found` : 'Failed');
-      console.log('Hotels:', hotelData?.success ? `${hotelData.count} found` : 'Failed');
-
-      // Validate that we have the necessary data
-      if (!weatherData || !flightData || !hotelData) {
-        throw new Error('Failed to fetch required trip data');
-      }
-
-      // Check if any API returned no results
-      const hasFlights = flightData.flights && flightData.flights.length > 0;
-      const hasHotels = hotelData.hotels && hotelData.hotels.length > 0;
-
-      if (!hasFlights || !hasHotels) {
-        const missingData = [];
-        if (!hasFlights) missingData.push('flights');
-        if (!hasHotels) missingData.push('hotels');
-
-        return {
-          error: `No ${missingData.join(' or ')} available for the selected criteria. Please try different dates or destinations.`,
-          message: null
-        };
-      }
-
-      // Generate comprehensive trip plan with all collected data
-      console.log('Generating trip plan with AI...');
-      setLoadingStage('Creating your personalized itinerary with AI...');
-      const tripPlan = await generateTripPlan({
-        weather: weatherData,
-        flights: flightData,
-        hotels: hotelData,
-        tripData
-      });
-
-      console.log('Trip plan generated successfully');
-      setLoadingStage(null);
-
-      // Store trip data in sessionStorage to avoid large navigation state payload
-      // This improves performance and memory usage
-      try {
-        sessionStorage.setItem('tripPlan', JSON.stringify(tripPlan));
-        sessionStorage.setItem('tripData', JSON.stringify(tripData));
-      } catch (storageError) {
-        console.warn('Failed to store trip data in sessionStorage:', storageError);
-        // Fallback to navigation state if sessionStorage fails
-        navigate('/results', {
-          state: {
-            tripPlan,
-            tripData
-          }
-        });
-        return {
-          error: null,
-          message: 'Trip plan generated successfully!'
-        };
-      }
-
-      // Navigate to results page (data will be read from sessionStorage)
-      navigate('/results');
-
+      sessionStorage.setItem('tripFormData', JSON.stringify(tripData));
+    } catch (storageError) {
+      console.error('Failed to store form data in sessionStorage:', storageError);
       return {
-        error: null,
-        message: 'Trip plan generated successfully!'
-      };
-    } catch (error) {
-      console.error('Error generating trip plan:', error);
-      setLoadingStage(null); // Clear loading stage on error
-
-      // Provide more specific error messages
-      const errorMessage = error.message || 'Failed to generate trip plan. Please try again.';
-
-      return {
-        error: errorMessage,
+        error: 'Failed to save form data. Please try again.',
         message: null
       };
     }
+
+    // Navigate immediately to results page
+    // The Results page will handle progressive data loading
+    navigate('/results');
+
+    return {
+      error: null,
+      message: 'Loading trip data...'
+    };
   }
 
   return (
@@ -212,14 +144,6 @@ export default function Planning() {
           {state?.message && (
             <div className="form-message success-message" role="status">
               {state.message}
-            </div>
-          )}
-
-          {loadingStage && (
-            <div className="loading-progress" role="status" aria-live="polite">
-              <div className="loading-spinner"></div>
-              <p className="loading-text">{loadingStage}</p>
-              <p className="loading-subtext">This typically takes 10-15 seconds</p>
             </div>
           )}
 

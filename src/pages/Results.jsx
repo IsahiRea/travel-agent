@@ -1,5 +1,9 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useProgressiveTripData } from '../hooks/useProgressiveTripData';
+import LoadingProgress from '../components/LoadingProgress';
+import LoadingSkeleton from '../components/LoadingSkeleton';
+import ErrorDisplay from '../components/ErrorDisplay';
 import './Results.css';
 import imgHeroEiffel from '../assets/images/photos/hero-eiffel.jpg';
 import imgFlightWing from '../assets/images/photos/flight-wing.jpg';
@@ -61,50 +65,53 @@ function _formatTime(timeStr) {
 
 export default function Results() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [tripData, setTripData] = useState(null);
-  const [tripPlan, setTripPlan] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
+  // Load form data from sessionStorage
   useEffect(() => {
-    // Try to load trip data from sessionStorage first (optimized approach)
     try {
-      const storedTripData = sessionStorage.getItem('tripData');
-      const storedTripPlan = sessionStorage.getItem('tripPlan');
-
-      if (storedTripData && storedTripPlan) {
-        setTripData(JSON.parse(storedTripData));
-        setTripPlan(JSON.parse(storedTripPlan));
-        setIsLoading(false);
-        return;
+      const storedFormData = sessionStorage.getItem('tripFormData');
+      if (storedFormData) {
+        setTripData(JSON.parse(storedFormData));
+      } else {
+        // If no form data, redirect to planning page
+        console.warn('No trip form data found, redirecting to planning page');
+        navigate('/planning');
       }
     } catch (error) {
-      console.warn('Failed to read from sessionStorage:', error);
+      console.error('Failed to read from sessionStorage:', error);
+      navigate('/planning');
     }
+  }, [navigate]);
 
-    // Fallback to navigation state (backward compatibility)
-    if (location.state?.tripData && location.state?.tripPlan) {
-      setTripData(location.state.tripData);
-      setTripPlan(location.state.tripPlan);
-      setIsLoading(false);
-      return;
-    }
+  // Use progressive loading hook
+  const { stage, data, error, retry } = useProgressiveTripData(tripData);
 
-    // If no data available, redirect to planning page
-    console.warn('No trip data found, redirecting to planning page');
-    navigate('/planning');
-  }, [location, navigate]);
+  // Show error state
+  if (error) {
+    return (
+      <div className="results-page">
+        <ErrorDisplay message={error} onRetry={retry} />
+      </div>
+    );
+  }
 
-  // Show loading state while data is being retrieved
-  if (isLoading || !tripData || !tripPlan) {
+  // Show loading progress
+  if (!tripData) {
     return (
       <div className="results-page">
         <div className="loading-container">
-          <p>Loading your trip plan...</p>
+          <p>Loading...</p>
         </div>
       </div>
     );
   }
+
+  // Extract data from progressive loading
+  const weatherData = data.weather;
+  const flightData = data.flights;
+  const hotelData = data.hotels;
+  const tripPlan = data.plan;
 
   return (
     <div className="results-page">
@@ -119,59 +126,72 @@ export default function Results() {
         </button>
       </div>
 
+      {/* Show loading progress while data is being fetched */}
+      {stage !== 'complete' && (
+        <LoadingProgress currentStage={stage} />
+      )}
+
       <div className="trip-details">
-        <div className="hero-banner">
-          <img alt={tripPlan.destination} className="hero-image" src={imgHeroEiffel} />
-          <div className="hero-overlay" />
-          <div className="hero-content">
-            <div className="itinerary-badge">
-              <img alt="" className="badge-icon" src={imgIconItinerary} />
-              <span className="results-badge-text">Your Itinerary</span>
-            </div>
-            <div className="hero-info">
-              <h1 className="trip-title">Trip to {tripPlan.destination}</h1>
-              <div className="trip-meta">
-                <div className="meta-card">
-                  <img alt="" className="meta-icon" src={imgIconCalendar} />
-                  <div className="meta-content">
-                    <span className="meta-text">{formatDate(tripData.departDate)}</span>
-                    <img alt="" className="arrow-icon" src={imgIconArrow} />
-                    <span className="meta-text">{formatDate(tripData.returnDate)}</span>
-                  </div>
+        {tripPlan && (
+          <>
+            <div className="hero-banner">
+              <img alt={tripPlan.destination} className="hero-image" src={imgHeroEiffel} />
+              <div className="hero-overlay" />
+              <div className="hero-content">
+                <div className="itinerary-badge">
+                  <img alt="" className="badge-icon" src={imgIconItinerary} />
+                  <span className="results-badge-text">Your Itinerary</span>
                 </div>
-                <div className="meta-card">
-                  <img alt="" className="meta-icon" src={imgIconLocation} />
-                  <div className="meta-content">
-                    <span className="meta-text">{tripData.departFrom}</span>
-                    <img alt="" className="arrow-icon" src={imgIconArrow} />
-                    <span className="meta-text">{tripData.arriveAt}</span>
+                <div className="hero-info">
+                  <h1 className="trip-title">Trip to {tripPlan.destination}</h1>
+                  <div className="trip-meta">
+                    <div className="meta-card">
+                      <img alt="" className="meta-icon" src={imgIconCalendar} />
+                      <div className="meta-content">
+                        <span className="meta-text">{formatDate(tripData.departDate)}</span>
+                        <img alt="" className="arrow-icon" src={imgIconArrow} />
+                        <span className="meta-text">{formatDate(tripData.returnDate)}</span>
+                      </div>
+                    </div>
+                    <div className="meta-card">
+                      <img alt="" className="meta-icon" src={imgIconLocation} />
+                      <div className="meta-content">
+                        <span className="meta-text">{tripData.departFrom}</span>
+                        <img alt="" className="arrow-icon" src={imgIconArrow} />
+                        <span className="meta-text">{tripData.arriveAt}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="info-grid">
-          <div className="info-card">
-            <div className="info-icon travelers-icon" />
-            <div className="info-content">
-              <span className="info-label">Travelers</span>
-              <span className="info-value">
-                {tripData.travelers} {tripData.travelers === 1 ? 'Person' : 'People'}
-              </span>
+            <div className="info-grid">
+              <div className="info-card">
+                <div className="info-icon travelers-icon" />
+                <div className="info-content">
+                  <span className="info-label">Travelers</span>
+                  <span className="info-value">
+                    {tripData.travelers} {tripData.travelers === 1 ? 'Person' : 'People'}
+                  </span>
+                </div>
+              </div>
+              <div className="info-card">
+                <div className="info-icon budget-icon" />
+                <div className="info-content">
+                  <span className="info-label">Total Budget</span>
+                  <span className="info-value">${tripData.budget.toLocaleString()}</span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="info-card">
-            <div className="info-icon budget-icon" />
-            <div className="info-content">
-              <span className="info-label">Total Budget</span>
-              <span className="info-value">${tripData.budget.toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
 
-        {tripPlan.rawWeatherData && tripPlan.rawWeatherData.forecast && tripPlan.rawWeatherData.forecast.length > 0 && (
+        {/* Weather Section - Show skeleton while loading */}
+        {!weatherData && stage !== 'complete' && stage !== 'initializing' && (
+          <LoadingSkeleton type="weather" />
+        )}
+        {tripPlan?.rawWeatherData && tripPlan.rawWeatherData.forecast && tripPlan.rawWeatherData.forecast.length > 0 && (
           <div className="weather-card">
             <div className="weather-icon" />
             <div className="weather-content">
@@ -197,7 +217,11 @@ export default function Results() {
           </div>
         )}
 
-        {tripPlan.selectedFlight && (
+        {/* Flight Section - Show skeleton while loading */}
+        {!flightData && (stage === 'flights' || (stage !== 'complete' && stage !== 'initializing' && stage !== 'weather')) && (
+          <LoadingSkeleton type="flight" />
+        )}
+        {tripPlan?.selectedFlight && (
           <div className="recommendation-card">
             <div className="rec-image-container">
               <img alt="Flight" className="rec-image" src={imgFlightWing} />
@@ -223,7 +247,11 @@ export default function Results() {
           </div>
         )}
 
-        {tripPlan.selectedHotel && (
+        {/* Hotel Section - Show skeleton while loading */}
+        {!hotelData && (stage === 'hotels' || (stage !== 'complete' && stage !== 'initializing' && stage !== 'weather' && stage !== 'flights')) && (
+          <LoadingSkeleton type="hotel" />
+        )}
+        {tripPlan?.selectedHotel && (
           <div className="recommendation-card">
             <div className="rec-image-container">
               <img alt="Hotel" className="rec-image" src={imgHotelRoom} />
@@ -248,7 +276,12 @@ export default function Results() {
           </div>
         )}
 
-        {tripPlan.budgetAnalysis && (
+        {/* Itinerary Section - Show skeleton while loading */}
+        {!tripPlan && stage === 'ai' && (
+          <LoadingSkeleton type="itinerary" />
+        )}
+
+        {tripPlan?.budgetAnalysis && (
           <div className="budget-section">
             <h2 className="section-title">Budget Breakdown</h2>
             <div className="budget-grid">
@@ -284,7 +317,7 @@ export default function Results() {
           </div>
         )}
 
-        {tripPlan.dailyItinerary && tripPlan.dailyItinerary.length > 0 && (
+        {tripPlan?.dailyItinerary && tripPlan.dailyItinerary.length > 0 && (
           <div className="itinerary-section">
             <h2 className="section-title">Daily Itinerary</h2>
             {tripPlan.dailyItinerary.map((day) => (
@@ -338,7 +371,7 @@ export default function Results() {
           </div>
         )}
 
-        {tripPlan.travelTips && tripPlan.travelTips.length > 0 && (
+        {tripPlan?.travelTips && tripPlan.travelTips.length > 0 && (
           <div className="tips-section">
             <h2 className="section-title">Travel Tips</h2>
             <ul className="tips-list">
@@ -349,7 +382,7 @@ export default function Results() {
           </div>
         )}
 
-        {tripPlan.packingRecommendations && tripPlan.packingRecommendations.length > 0 && (
+        {tripPlan?.packingRecommendations && tripPlan.packingRecommendations.length > 0 && (
           <div className="packing-section">
             <h2 className="section-title">Packing Recommendations</h2>
             <ul className="packing-list">
@@ -360,7 +393,7 @@ export default function Results() {
           </div>
         )}
 
-        {tripPlan.summary && (
+        {tripPlan?.summary && (
           <div className="summary-section">
             <h2 className="section-title">Trip Summary</h2>
             <p className="summary-text">{tripPlan.summary}</p>
