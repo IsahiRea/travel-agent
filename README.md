@@ -2,6 +2,8 @@
 
 An intelligent travel planning application built with React 19 and Vite that helps users plan their perfect trip by combining real-time flight data, hotel information, and weather forecasts with AI-powered recommendations.
 
+🌐 **[View Live Demo](https://travel-agent-azure.vercel.app/)**
+
 ## Features
 
 - **Smart Trip Planning**: Interactive form with location swap, traveler counter, and budget planning
