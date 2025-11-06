@@ -1,0 +1,98 @@
+/* Design Tokens & CSS Variables */
+
+:root {
+  /* Color Palette */
+  --color-primary: #b5654d;
+  --color-secondary: #d4a574;
+  --color-text-primary: #2d2d2d;
+  --color-text-secondary: #6b5d53;
+  --color-border: #e5ded7;
+  --color-background: #f2e6dc;
+  --color-background-light: rgba(242, 230, 220, 0.3);
+  --color-background-medium: rgba(242, 230, 220, 0.5);
+  --color-background-lighter: rgba(242, 230, 220, 0.2);
+  --color-white: #ffffff;
+  --color-success: #4caf50;
+  --color-error: #f44336;
+  --color-warning: #ff9800;
+  --color-info: #2196f3;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(to bottom, #b5654d, #d4a574);
+
+  /* Spacing */
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 20px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 28px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 40px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  --radius-circle: 50%;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.15);
+
+  /* Transitions */
+  --transition-fast: 0.15s;
+  --transition-normal: 0.3s;
+  --transition-slow: 0.5s;
+  --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typography */
+  --font-family-base: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 28px;
+  --font-size-4xl: 32px;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Z-Index Scale */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 500;
+  --z-fixed: 1000;
+  --z-modal-backdrop: 1400;
+  --z-modal: 1500;
+  --z-popover: 2000;
+  --z-tooltip: 3000;
+
+  /* Breakpoints (for reference in comments) */
+  /* Mobile: 320px - 480px */
+  /* Tablet: 481px - 768px */
+  /* Desktop: 769px - 1024px */
+  /* Large Desktop: 1025px - 1280px */
+  /* XL Desktop: 1281px+ */
+
+  /* Container Widths */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1404px;
+
+  /* Backdrop Filters */
+  --backdrop-blur-sm: blur(4px);
+  --backdrop-blur-md: blur(8px);
+  --backdrop-blur-lg: blur(10px);
+  --backdrop-blur-xl: blur(16px);
+}

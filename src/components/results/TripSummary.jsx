@@ -1,4 +1,4 @@
-import './styles/TripSummary.css';
+import '../../styles/components/TripSummary.css';
 
 export default function TripSummary({ summary }) {
   if (!summary) return null;

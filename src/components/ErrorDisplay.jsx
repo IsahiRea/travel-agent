@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import Icon from './Icon';
-import './ErrorDisplay.css';
+import { ROUTES } from '../constants/routes';
+import '../styles/components/ErrorDisplay.css';
 
 /**
  * Error display component with retry functionality
@@ -26,7 +27,7 @@ export default function ErrorDisplay({ message, onRetry }) {
               Try Again
             </button>
           )}
-          <button className="error-button secondary" onClick={() => navigate('/planning')}>
+          <button className="error-button secondary" onClick={() => navigate(ROUTES.PLANNING)}>
             Back to Planning
           </button>
         </div>

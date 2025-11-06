@@ -34,7 +34,7 @@
 .error-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #2d2d2d;
+  color: var(--color-text-primary);
   margin: 0 0 1rem 0;
 }
 
@@ -54,18 +54,18 @@
 
 .error-button {
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal) ease;
   border: none;
   min-width: 200px;
 }
 
 .error-button.primary {
   background-color: #4a90e2;
-  color: white;
+  color: var(--color-white);
 }
 
 .error-button.primary:hover {
@@ -75,7 +75,7 @@
 }
 
 .error-button.secondary {
-  background-color: white;
+  background-color: var(--color-white);
   color: #4a90e2;
   border: 2px solid #4a90e2;
 }

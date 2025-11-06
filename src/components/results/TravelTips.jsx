@@ -1,4 +1,4 @@
-import './styles/TravelTips.css';
+import '../../styles/components/TravelTips.css';
 
 export default function TravelTips({ tips }) {
   if (!tips || tips.length === 0) return null;

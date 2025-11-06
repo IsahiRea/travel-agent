@@ -1,8 +1,8 @@
 /* Recommendation Cards (Flight & Hotel) */
 .recommendation-card {
-  background: white;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -30,34 +30,34 @@
 
 .rec-badge {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
   padding: 6px 12px;
   border-radius: 33554400px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
   line-height: 20px;
-  color: white;
+  color: var(--color-white);
 }
 
 .rec-badge.best-deal {
-  background: #d4a574;
+  background: var(--color-secondary);
 }
 
 .rec-badge.rating {
-  background: #b5654d;
+  background: var(--color-primary);
 }
 
 .rec-content {
   display: flex;
-  gap: 16px;
-  padding: 24px 20px;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl) var(--spacing-lg);
 }
 
 .rec-icon {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -68,56 +68,56 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .card-title {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
   line-height: 24px;
   font-weight: normal;
-  color: #2d2d2d;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .card-description {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family-base);
   font-size: 15px;
   line-height: 24px;
-  color: #6b5d53;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .tag-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--spacing-xs);
 }
 
 .tag {
   padding: 7px 13px;
-  background: rgba(242, 230, 220, 0.5);
-  border: 1px solid #e5ded7;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
+  background: var(--color-background-medium);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
   line-height: 20px;
-  color: #6b5d53;
+  color: var(--color-text-secondary);
 }
 
 .book-button {
   width: calc(100% - 40px);
-  margin: 0 20px 20px;
-  padding: 14px 32px;
-  background: linear-gradient(to bottom, #b5654d, #d4a574);
-  color: white;
+  margin: 0 var(--spacing-lg) var(--spacing-lg);
+  padding: 14px var(--spacing-3xl);
+  background: var(--gradient-primary);
+  color: var(--color-white);
   border: none;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  font-size: 16px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
   line-height: 24px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-fast);
   min-height: 48px;
 }
 
@@ -135,13 +135,13 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 8px 16px;
+  padding: 8px var(--spacing-md);
   background: rgba(74, 144, 226, 0.95);
-  color: white;
-  font-size: 12px;
+  color: var(--color-white);
+  font-size: var(--font-size-xs);
   font-weight: 500;
-  border-radius: 8px;
-  backdrop-filter: blur(10px);
+  border-radius: var(--radius-md);
+  backdrop-filter: var(--backdrop-blur-xl);
   animation: pulse-fade 2s ease-in-out infinite;
 }
 
@@ -168,7 +168,7 @@
   }
 
   .rec-content {
-    padding: 28px 24px;
+    padding: var(--spacing-2xl) var(--spacing-xl);
   }
 }
 
@@ -181,7 +181,7 @@
   .book-button {
     width: auto;
     min-width: 200px;
-    margin: 0 auto 20px;
+    margin: 0 auto var(--spacing-lg);
     display: block;
   }
 }

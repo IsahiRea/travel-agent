@@ -1,7 +1,7 @@
 import Icon from '../Icon';
 import { generateFlightBookingLink, trackBookingClick } from '../../utils/bookingLinks';
 import imgFlightWing from '../../assets/images/photos/flight-wing.jpg';
-import './styles/RecommendationCard.css';
+import '../../styles/components/RecommendationCard.css';
 
 export default function FlightCard({ flight, tripData, isStreaming }) {
   const handleBookingClick = () => {

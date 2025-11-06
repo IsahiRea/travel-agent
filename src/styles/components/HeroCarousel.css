@@ -48,34 +48,34 @@
   border: none;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   font-size: 20px;
   cursor: pointer;
   z-index: 3;
-  transition: background-color 0.2s;
+  transition: background-color var(--transition-fast);
   display: none;
   align-items: center;
   justify-content: center;
-  color: #2d2d2d;
+  color: var(--color-text-primary);
   line-height: 1;
   padding: 0;
 }
 
 .carousel-button:hover {
-  background: white;
+  background: var(--color-white);
 }
 
 .carousel-button:focus {
-  outline: 2px solid #b5654d;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .carousel-button.prev {
-  left: 12px;
+  left: var(--spacing-sm);
 }
 
 .carousel-button.next {
-  right: 12px;
+  right: var(--spacing-sm);
 }
 
 .carousel-dots {
@@ -84,18 +84,18 @@
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 8px;
+  gap: var(--spacing-xs);
   z-index: 5;
 }
 
 .dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
-  border: 2px solid white;
+  border-radius: var(--radius-circle);
+  border: 2px solid var(--color-white);
   background: transparent;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color var(--transition-fast);
   padding: 0;
 }
 
@@ -104,12 +104,12 @@
 }
 
 .dot:focus {
-  outline: 2px solid white;
+  outline: 2px solid var(--color-white);
   outline-offset: 2px;
 }
 
 .dot.active {
-  background: white;
+  background: var(--color-white);
 }
 
 /* Larger Mobile / Small Tablet */

@@ -1,4 +1,4 @@
-import './styles/PackingList.css';
+import '../../styles/components/PackingList.css';
 
 export default function PackingList({ items }) {
   if (!items || items.length === 0) return null;

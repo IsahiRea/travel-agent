@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { searchCityAirports } from '../apis/flightApi';
-import './LocationAutocomplete.css';
+import '../styles/components/LocationAutocomplete.css';
 
 /**
  * LocationAutocomplete Component

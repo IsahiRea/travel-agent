@@ -1,7 +1,7 @@
 import Icon from '../Icon';
 import heroEiffel from '../../assets/images/photos/hero-eiffel.jpg';
 import { formatDate } from '../../utils/formatters';
-import './styles/ResultsSidebar.css';
+import '../../styles/components/ResultsSidebar.css';
 
 export default function ResultsSidebar({ tripData, displayPlan, activeSection }) {
   if (!tripData || !displayPlan) return null;

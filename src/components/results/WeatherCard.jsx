@@ -1,5 +1,5 @@
 import Icon from '../Icon';
-import './styles/WeatherCard.css';
+import '../../styles/components/WeatherCard.css';
 
 export default function WeatherCard({ weatherData }) {
   if (!weatherData?.forecast || weatherData.forecast.length === 0) {

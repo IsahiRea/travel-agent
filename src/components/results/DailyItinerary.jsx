@@ -1,5 +1,5 @@
 import { formatDate } from '../../utils/formatters';
-import './styles/DailyItinerary.css';
+import '../../styles/components/DailyItinerary.css';
 
 export default function DailyItinerary({ itinerary }) {
   if (!itinerary || itinerary.length === 0) return null;

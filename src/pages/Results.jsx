@@ -18,7 +18,8 @@ import DailyItinerary from '../components/results/DailyItinerary';
 import TravelTips from '../components/results/TravelTips';
 import PackingList from '../components/results/PackingList';
 import TripSummary from '../components/results/TripSummary';
-import './Results.css';
+import { ROUTES } from '../constants/routes';
+import '../styles/pages/Results.css';
 
 
 export default function Results() {
@@ -38,11 +39,11 @@ export default function Results() {
       } else {
         // If no form data, redirect to planning page
         console.warn('No trip form data found, redirecting to planning page');
-        navigate('/planning');
+        navigate(ROUTES.PLANNING);
       }
     } catch (error) {
       console.error('Failed to read from sessionStorage:', error);
-      navigate('/planning');
+      navigate(ROUTES.PLANNING);
     }
   }, [navigate]);
 
@@ -82,11 +83,11 @@ export default function Results() {
   return (
     <div className="results-page">
       <div className="results-nav">
-        <button className="nav-button" onClick={() => navigate('/planning')}>
+        <button className="nav-button" onClick={() => navigate(ROUTES.PLANNING)}>
           <Icon name="back" className="nav-icon" size={16} color="#2d2d2d" alt="Back arrow" />
           <span className="nav-text">Back to Planning</span>
         </button>
-        <button className="nav-button secondary" onClick={() => navigate('/planning')}>
+        <button className="nav-button secondary" onClick={() => navigate(ROUTES.PLANNING)}>
           <Icon name="plan" className="nav-icon" size={16} color="#2d2d2d" alt="Plan document" />
           <span className="nav-text">Plan Another Trip</span>
         </button>

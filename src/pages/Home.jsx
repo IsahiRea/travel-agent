@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Home.css';
+import '../styles/pages/Home.css';
 import HeroCarousel from '../components/HeroCarousel';
 import { LOCAL_HERO_IMAGES } from '../data/heroImages';
 import { searchDestinationPhotos } from '../apis/unsplashApi';
+import { ROUTES } from '../constants/routes';
 import imgIcon from '../assets/images/icons/journey-badge.svg';
 import imgIcon1 from '../assets/images/icons/globe.svg';
 import imgIcon2 from '../assets/images/icons/flex-calendar.svg';
@@ -51,7 +52,7 @@ export default function Home() {
             </p>
           </div>
 
-          <button className="cta-button" onClick={() => navigate('/planning')}>Get Started</button>
+          <button className="cta-button" onClick={() => navigate(ROUTES.PLANNING)}>Get Started</button>
 
           <div className="features-grid">
             <div className="feature-card">

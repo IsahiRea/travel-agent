@@ -1,5 +1,5 @@
 import Icon from '../Icon';
-import './styles/TripInfoCards.css';
+import '../../styles/components/TripInfoCards.css';
 
 export default function TripInfoCards({ tripData }) {
   return (

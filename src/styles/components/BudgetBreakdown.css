@@ -1,32 +1,32 @@
 /* Budget Section */
 .budget-section {
-  background: white;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-  padding: 24px 20px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl) var(--spacing-lg);
 }
 
 .section-title {
-  font-family: Arial, sans-serif;
-  font-size: 20px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xl);
   line-height: 28px;
   font-weight: normal;
-  color: #2d2d2d;
-  margin: 0 0 20px 0;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
 }
 
 .budget-grid {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .budget-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #f2e6dc;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-background);
 }
 
 .budget-item:last-child {
@@ -34,35 +34,35 @@
 }
 
 .budget-total {
-  margin-top: 8px;
-  padding-top: 16px;
-  border-top: 2px solid #e5ded7;
+  margin-top: var(--spacing-xs);
+  padding-top: var(--spacing-md);
+  border-top: 2px solid var(--color-border);
 }
 
 .budget-label {
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family-base);
   font-size: 15px;
   line-height: 24px;
-  color: #6b5d53;
+  color: var(--color-text-secondary);
 }
 
 .budget-total .budget-label {
-  font-size: 16px;
+  font-size: var(--font-size-base);
   font-weight: 500;
-  color: #2d2d2d;
+  color: var(--color-text-primary);
 }
 
 .budget-value {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
   line-height: 24px;
-  color: #2d2d2d;
+  color: var(--color-text-primary);
   font-weight: 500;
 }
 
 .budget-total .budget-value {
-  font-size: 18px;
-  color: #b5654d;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
 }
 
 /* Responsive Design */
@@ -70,7 +70,7 @@
   .budget-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: var(--spacing-md);
   }
 
   .budget-total {
@@ -80,13 +80,13 @@
 
 @media (min-width: 769px) {
   .section-title {
-    font-size: 22px;
+    font-size: var(--font-size-2xl);
     line-height: 32px;
-    margin-bottom: 24px;
+    margin-bottom: var(--spacing-xl);
   }
 
   .budget-section {
-    padding: 28px 24px;
+    padding: var(--spacing-2xl) var(--spacing-xl);
   }
 
   .budget-grid {
@@ -100,7 +100,7 @@
 
 @media (min-width: 1025px) {
   .budget-section {
-    padding: 32px 28px;
+    padding: var(--spacing-3xl) var(--spacing-2xl);
   }
 
   /* Four-column layout for desktop - better space utilization */
@@ -116,6 +116,6 @@
 @media (min-width: 1280px) {
   /* Maintain four columns with better spacing */
   .budget-grid {
-    column-gap: 20px;
+    column-gap: var(--spacing-lg);
   }
 }

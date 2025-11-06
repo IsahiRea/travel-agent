@@ -1,5 +1,5 @@
 import Icon from './Icon';
-import './LoadingProgress.css';
+import '../styles/components/LoadingProgress.css';
 
 const STAGE_INFO = {
   initializing: {

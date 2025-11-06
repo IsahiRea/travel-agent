@@ -3,7 +3,7 @@ import Icon from '../Icon';
 import { formatDate } from '../../utils/formatters';
 import { searchDestinationPhotos, triggerUnsplashDownload } from '../../apis/unsplashApi';
 import imgHeroEiffel from '../../assets/images/photos/hero-eiffel.jpg';
-import './styles/TripHeader.css';
+import '../../styles/components/TripHeader.css';
 
 export default function TripHeader({ destination, tripData, isStreaming }) {
   const [heroImage, setHeroImage] = useState(null);

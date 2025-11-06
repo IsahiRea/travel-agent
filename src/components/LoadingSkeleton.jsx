@@ -1,4 +1,4 @@
-import './LoadingSkeleton.css';
+import '../styles/components/LoadingSkeleton.css';
 
 /**
  * Skeleton loader for different sections that shows while data is loading

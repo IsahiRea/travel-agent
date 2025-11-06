@@ -1,4 +1,4 @@
-import './styles/BudgetBreakdown.css';
+import '../../styles/components/BudgetBreakdown.css';
 
 export default function BudgetBreakdown({ budgetAnalysis }) {
   if (!budgetAnalysis) return null;

@@ -3,22 +3,22 @@
   background-color: #faf7f2;
   min-height: 100vh;
   width: 100%;
-  padding: 100px 20px 40px;
+  padding: 100px var(--spacing-lg) var(--spacing-3xl);
 }
 
 /* Navigation */
 .results-nav {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 28px;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .nav-button {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   background: transparent;
   border: none;
   border-radius: 6px;
@@ -33,7 +33,7 @@
 }
 
 .nav-button.secondary {
-  border: 1px solid #e5ded7;
+  border: 1px solid var(--color-border);
   background: #faf7f2;
 }
 
@@ -43,17 +43,17 @@
 }
 
 .nav-text {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
   line-height: 20px;
-  color: #2d2d2d;
+  color: var(--color-text-primary);
 }
 
 /* Trip Details Container - Mobile first (single column) */
 .trip-details {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: var(--spacing-2xl);
   max-width: 100%;
   margin: 0 auto;
 }
@@ -62,21 +62,21 @@
 .trip-main-content {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: var(--spacing-2xl);
 }
 
 /* Mobile Header Section - Visible on mobile/tablet, hidden on desktop */
 .mobile-header-section {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: var(--spacing-2xl);
 }
 
 /* Cards Grid - Mobile stacked, desktop 2-column */
 .cards-grid {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: var(--spacing-2xl);
 }
 
 /* Full Width Sections */
@@ -88,7 +88,7 @@
 .tips-packing-grid {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: var(--spacing-2xl);
 }
 
 /* Loading State */
@@ -97,29 +97,29 @@
   justify-content: center;
   align-items: center;
   min-height: 50vh;
-  padding: 40px 20px;
+  padding: var(--spacing-4xl) var(--spacing-lg);
 }
 
 .loading-container p {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
   line-height: 24px;
-  color: #6b5d53;
+  color: var(--color-text-secondary);
 }
 
 /* Streaming Indicators - Matching site style */
 .streaming-message {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
   background: #f0f8ff;
   border: 1px solid #4a90e2;
-  border-radius: 12px;
-  font-size: 14px;
-  color: #2d2d2d;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
   animation: slide-in 0.3s ease-out;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
 }
 
 .streaming-dot-pulse {
@@ -156,7 +156,7 @@
 /* Larger Mobile / Small Tablet */
 @media (min-width: 481px) {
   .results-page {
-    padding: 110px 28px 50px;
+    padding: 110px var(--spacing-xl) 50px;
   }
 
   .results-nav {
@@ -176,19 +176,19 @@
 /* Tablet */
 @media (min-width: 769px) {
   .results-page {
-    padding: 120px 32px 60px;
+    padding: 120px var(--spacing-3xl) 60px;
   }
 
   .trip-details {
     max-width: 800px;
-    gap: 32px;
+    gap: var(--spacing-3xl);
   }
 }
 
 /* Desktop */
 @media (min-width: 1025px) {
   .results-page {
-    padding: 140px 40px 80px;
+    padding: 140px var(--spacing-4xl) 80px;
   }
 
   .trip-details {
@@ -199,14 +199,14 @@
   .cards-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: var(--spacing-xl);
   }
 
   /* Tips & Packing side by side on desktop */
   .tips-packing-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: var(--spacing-xl);
   }
 }
 
@@ -220,7 +220,7 @@
   .trip-details {
     display: grid;
     grid-template-columns: 380px 1fr;
-    gap: 32px;
+    gap: var(--spacing-3xl);
     max-width: 1400px;
     margin: 0 auto;
   }
@@ -234,18 +234,18 @@
   .trip-main-content {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: var(--spacing-xl);
   }
 
   .nav-text {
-    font-size: 14px;
+    font-size: var(--font-size-sm);
   }
 
   /* Cards Grid - 2 columns on large desktop */
   .cards-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: var(--spacing-xl);
   }
 
   /* Full width sections span entire main content area */
@@ -257,7 +257,7 @@
   /* .tips-packing-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: var(--spacing-xl);
   } */
 }
 
@@ -271,17 +271,17 @@
   .trip-details {
     grid-template-columns: 420px 1fr;
     max-width: 1600px;
-    gap: 40px;
+    gap: var(--spacing-4xl);
   }
 
   /* Cards Grid - 3 columns on extra large
   .cards-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
+    gap: var(--spacing-2xl);
   } */
 
   .tips-packing-grid {
-    gap: 28px;
+    gap: var(--spacing-2xl);
   }
 }
 
@@ -298,22 +298,22 @@
   }
 
   .trip-main-content {
-    gap: 28px;
+    gap: var(--spacing-2xl);
   }
 
   .cards-grid {
-    gap: 32px;
+    gap: var(--spacing-3xl);
   }
 
   .tips-packing-grid {
-    gap: 32px;
+    gap: var(--spacing-3xl);
   }
 }
 
 /* Mobile responsiveness for streaming indicators */
 @media (max-width: 768px) {
   .streaming-message {
-    font-size: 13px;
-    padding: 12px 16px;
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import './HeroCarousel.css';
+import '../styles/components/HeroCarousel.css';
 
 export default function HeroCarousel({ images, interval = 6000, showControls = true }) {
   const [currentIndex, setCurrentIndex] = useState(0);

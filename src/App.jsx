@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import Header from './components/Header';
 import Home from './pages/Home';
+import { ROUTES } from './constants/routes';
 
 // Lazy load heavy route components for code splitting
 const Planning = lazy(() => import('./pages/Planning'));
@@ -29,9 +30,9 @@ function App() {
       <Header />
       <Suspense fallback={<RouteLoading />}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/planning" element={<Planning />} />
-          <Route path="/results" element={<Results />} />
+          <Route path={ROUTES.HOME} element={<Home />} />
+          <Route path={ROUTES.PLANNING} element={<Planning />} />
+          <Route path={ROUTES.RESULTS} element={<Results />} />
         </Routes>
       </Suspense>
     </Router>

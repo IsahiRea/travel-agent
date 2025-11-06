@@ -2,7 +2,13 @@ import { useState, useActionState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LocationAutocomplete from '../components/LocationAutocomplete';
 import { usePersistedState } from '../hooks/usePersistedState';
-import './Planning.css';
+import { ROUTES } from '../constants/routes';
+import {
+  ERROR_MESSAGES,
+  TRIP_CONFIG,
+  VALIDATORS
+} from '../constants/validation';
+import '../styles/pages/Planning.css';
 
 // Lazy load SVG icons to reduce initial bundle size
 // Vite will handle these efficiently and they'll be included in the Planning chunk
@@ -22,8 +28,8 @@ export default function Planning() {
   const navigate = useNavigate();
 
   // Use persisted state for form fields (survives page refresh)
-  const [tripType, setTripType] = usePersistedState('trip-type', 'roundtrip');
-  const [travelers, setTravelers] = usePersistedState('trip-travelers', 1);
+  const [tripType, setTripType] = usePersistedState('trip-type', TRIP_CONFIG.TYPES.ROUNDTRIP);
+  const [travelers, setTravelers] = usePersistedState('trip-travelers', TRIP_CONFIG.TRAVELERS.DEFAULT);
   const [departFrom, setDepartFrom] = usePersistedState('trip-departFrom', 'New York City');
   const [arriveAt, setArriveAt] = usePersistedState('trip-arriveAt', 'Paris');
   const [departDate, setDepartDate] = usePersistedState('trip-departDate', '');
@@ -39,8 +45,8 @@ export default function Planning() {
     budget: null
   });
 
-  const handleIncrement = () => setTravelers(prev => prev + 1);
-  const handleDecrement = () => setTravelers(prev => Math.max(1, prev - 1));
+  const handleIncrement = () => setTravelers(prev => Math.min(TRIP_CONFIG.TRAVELERS.MAX, prev + 1));
+  const handleDecrement = () => setTravelers(prev => Math.max(TRIP_CONFIG.TRAVELERS.MIN, prev - 1));
 
   const handleSwapLocations = () => {
     setDepartFrom(arriveAt);
@@ -76,58 +82,21 @@ export default function Planning() {
 
     let hasError = false;
 
-    // Validate form data - set specific field errors
-    if (!departFrom || departFrom.trim() === '') {
-      errors.departFrom = 'Departure city is required';
-      hasError = true;
-    }
+    // Validate form data using validation constants
+    errors.departFrom = VALIDATORS.required(departFrom, ERROR_MESSAGES.REQUIRED.DEPART_FROM);
+    if (errors.departFrom) hasError = true;
 
-    if (!arriveAt || arriveAt.trim() === '') {
-      errors.arriveAt = 'Arrival city is required';
-      hasError = true;
-    }
+    errors.arriveAt = VALIDATORS.required(arriveAt, ERROR_MESSAGES.REQUIRED.ARRIVE_AT);
+    if (errors.arriveAt) hasError = true;
 
-    if (!departDate) {
-      errors.departDate = 'Departure date is required';
-      hasError = true;
-    }
+    errors.departDate = VALIDATORS.departDate(departDate);
+    if (errors.departDate) hasError = true;
 
-    // Only validate return date for round trips
-    if (currentTripType === 'roundtrip') {
-      if (!returnDate) {
-        errors.returnDate = 'Return date is required for round trips';
-        hasError = true;
-      }
-    }
+    errors.returnDate = VALIDATORS.returnDate(returnDate, departDate, currentTripType);
+    if (errors.returnDate) hasError = true;
 
-    if (!budget) {
-      errors.budget = 'Budget is required';
-      hasError = true;
-    } else if (Number(budget) <= 0) {
-      errors.budget = 'Budget must be greater than 0';
-      hasError = true;
-    }
-
-    // Validate dates
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (departDate) {
-      const departDateTime = new Date(departDate);
-      if (departDateTime < today) {
-        errors.departDate = 'Departure date cannot be in the past';
-        hasError = true;
-      }
-
-      // Only validate return date comparison for round trips
-      if (currentTripType === 'roundtrip' && returnDate) {
-        const returnDateTime = new Date(returnDate);
-        if (returnDateTime <= departDateTime) {
-          errors.returnDate = 'Return date must be after departure date';
-          hasError = true;
-        }
-      }
-    }
+    errors.budget = VALIDATORS.budget(budget);
+    if (errors.budget) hasError = true;
 
     // Update field errors state
     setFieldErrors(errors);
@@ -135,7 +104,7 @@ export default function Planning() {
     // If there are errors, return early
     if (hasError) {
       return {
-        error: 'Please correct the errors in the form',
+        error: ERROR_MESSAGES.INVALID.FORM_ERRORS,
         message: null
       };
     }
@@ -147,7 +116,7 @@ export default function Planning() {
       departFrom,
       arriveAt,
       departDate,
-      returnDate: currentTripType === 'roundtrip' ? returnDate : null,
+      returnDate: currentTripType === TRIP_CONFIG.TYPES.ROUNDTRIP ? returnDate : null,
       budget: Number(budget)
     };
 
@@ -166,7 +135,7 @@ export default function Planning() {
 
     // Navigate immediately to results page
     // The Results page will handle progressive data loading
-    navigate('/results');
+    navigate(ROUTES.RESULTS);
 
     return {
       error: null,
@@ -189,7 +158,7 @@ export default function Planning() {
 
   return (
     <div className="planning-page">
-      <button className="back-button" onClick={() => navigate('/')}>
+      <button className="back-button" onClick={() => navigate(ROUTES.HOME)}>
         <img alt="" className="back-icon" src={imgIconBack} />
         <span className="back-text">Back to Home</span>
       </button>
@@ -218,9 +187,9 @@ export default function Planning() {
             <div className="trip-type-toggle" role="group" aria-labelledby="tripType-label">
               <button
                 type="button"
-                className={`toggle-option ${tripType === 'roundtrip' ? 'active' : ''}`}
-                onClick={() => setTripType('roundtrip')}
-                aria-pressed={tripType === 'roundtrip'}
+                className={`toggle-option ${tripType === TRIP_CONFIG.TYPES.ROUNDTRIP ? 'active' : ''}`}
+                onClick={() => setTripType(TRIP_CONFIG.TYPES.ROUNDTRIP)}
+                aria-pressed={tripType === TRIP_CONFIG.TYPES.ROUNDTRIP}
               >
                 Round Trip
               </button>
@@ -375,7 +344,7 @@ export default function Planning() {
               )}
             </div>
 
-            {tripType === 'roundtrip' && (
+            {tripType === TRIP_CONFIG.TYPES.ROUNDTRIP && (
               <div className="form-section">
                 <label className="form-label" id="returnDate-label">
                   Return Date

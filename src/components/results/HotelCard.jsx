@@ -1,7 +1,7 @@
 import Icon from '../Icon';
 import { generateHotelBookingLink, trackBookingClick } from '../../utils/bookingLinks';
 import imgHotelRoom from '../../assets/images/photos/hotel-room.jpg';
-import './styles/RecommendationCard.css';
+import '../../styles/components/RecommendationCard.css';
 
 export default function HotelCard({ hotel, tripData, isStreaming }) {
   const handleBookingClick = () => {

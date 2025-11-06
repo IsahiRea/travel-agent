@@ -1,18 +1,18 @@
 /* Packing Section */
 .packing-section {
-  background: white;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-  padding: 24px 20px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl) var(--spacing-lg);
 }
 
 .section-title {
-  font-family: Arial, sans-serif;
-  font-size: 20px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xl);
   line-height: 28px;
   font-weight: normal;
-  color: #2d2d2d;
-  margin: 0 0 20px 0;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-lg) 0;
 }
 
 .packing-list {
@@ -21,18 +21,18 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .packing-item {
   padding: 14px 14px 14px 38px;
-  background: rgba(242, 230, 220, 0.3);
-  border: 1px solid #e5ded7;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
+  background: var(--color-background-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-base);
   font-size: 15px;
   line-height: 24px;
-  color: #2d2d2d;
+  color: var(--color-text-primary);
   position: relative;
 }
 
@@ -40,47 +40,47 @@
   content: "□";
   position: absolute;
   left: 14px;
-  color: #b5654d;
+  color: var(--color-primary);
   font-size: 16px;
 }
 
 /* Responsive Design */
 @media (min-width: 769px) {
   .section-title {
-    font-size: 22px;
+    font-size: var(--font-size-2xl);
     line-height: 32px;
-    margin-bottom: 24px;
+    margin-bottom: var(--spacing-xl);
   }
 
   .packing-section {
-    padding: 28px 24px;
+    padding: var(--spacing-2xl) var(--spacing-xl);
   }
 
   /* Two-column layout for tablet */
   .packing-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: var(--spacing-sm);
   }
 }
 
 @media (min-width: 1025px) {
   .packing-section {
-    padding: 32px 28px;
+    padding: var(--spacing-3xl) var(--spacing-2xl);
   }
 
   /* Three-column layout for desktop */
   .packing-list {
     grid-template-columns: repeat(3, 1fr);
-    column-gap: 16px;
-    row-gap: 12px;
+    column-gap: var(--spacing-md);
+    row-gap: var(--spacing-sm);
   }
 }
 
 @media (min-width: 1280px) {
   /* Wider spacing for large desktop */
   .packing-list {
-    column-gap: 20px;
+    column-gap: var(--spacing-lg);
     row-gap: 14px;
   }
 }
