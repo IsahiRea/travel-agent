@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Icon from '../Icon';
 import { formatDate } from '../../utils/formatters';
-import { searchDestinationPhotos, triggerUnsplashDownload } from '../../apis/unsplashApi';
+import { searchDestinationPhotos, triggerUnsplashDownload } from '../../api.js';
 import imgHeroEiffel from '../../assets/images/photos/hero-eiffel.jpg';
 import '../../styles/components/TripHeader.css';
 

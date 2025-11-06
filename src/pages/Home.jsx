@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/pages/Home.css';
 import HeroCarousel from '../components/HeroCarousel';
 import { LOCAL_HERO_IMAGES } from '../data/heroImages';
-import { searchDestinationPhotos } from '../apis/unsplashApi';
+import { searchDestinationPhotos } from '../api.js';
 import { ROUTES } from '../constants/routes';
 import imgIcon from '../assets/images/icons/journey-badge.svg';
 import imgIcon1 from '../assets/images/icons/globe.svg';
