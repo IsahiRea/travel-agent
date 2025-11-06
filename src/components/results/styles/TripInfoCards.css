@@ -1,0 +1,82 @@
+/* Info Grid */
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid #e5ded7;
+  border-radius: 12px;
+  background: white;
+}
+
+.info-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-label {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #6b5d53;
+}
+
+.info-value {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #2d2d2d;
+}
+
+/* Tablet */
+@media (min-width: 481px) {
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) {
+  .info-value {
+    font-size: 18px;
+    line-height: 28px;
+  }
+}
+
+/* Desktop - 3 column layout */
+@media (min-width: 1025px) {
+  /* .info-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  } */
+
+  .info-card {
+    padding: 24px;
+  }
+}
+
+/* Large Desktop - 4 column layout for better space utilization */
+@media (min-width: 1280px) {
+  .info-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+}

@@ -533,16 +533,37 @@
   }
 
   .planning-container {
-    max-width: 672px;
+    max-width: 720px;
   }
 
   .back-button {
-    max-width: 672px;
+    max-width: 720px;
   }
 
   .planning-heading {
-    font-size: 16px;
-    line-height: 24px;
+    font-size: 26px;
+    line-height: 34px;
+  }
+}
+
+/* Extra Large Desktop - Better space utilization */
+@media (min-width: 1600px) {
+  .planning-container {
+    max-width: 800px;
+  }
+
+  .back-button {
+    max-width: 800px;
+  }
+
+  .planning-heading {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .planning-subtitle {
+    font-size: 17px;
+    line-height: 26px;
   }
 }
 

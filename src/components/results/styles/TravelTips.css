@@ -1,0 +1,86 @@
+/* Tips Section */
+.tips-section {
+  background: white;
+  border: 1px solid #e5ded7;
+  border-radius: 12px;
+  padding: 24px 20px;
+}
+
+.section-title {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: normal;
+  color: #2d2d2d;
+  margin: 0 0 20px 0;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tip-item {
+  padding: 14px 14px 14px 38px;
+  background: rgba(242, 230, 220, 0.3);
+  border: 1px solid #e5ded7;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  line-height: 24px;
+  color: #2d2d2d;
+  position: relative;
+}
+
+.tip-item::before {
+  content: "✓";
+  position: absolute;
+  left: 14px;
+  color: #b5654d;
+  font-weight: bold;
+}
+
+/* Responsive Design */
+@media (min-width: 769px) {
+  .section-title {
+    font-size: 22px;
+    line-height: 32px;
+    margin-bottom: 24px;
+  }
+
+  .tips-section {
+    padding: 28px 24px;
+  }
+
+  /* Two-column layout for tablet */
+  .tips-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .tips-section {
+    padding: 32px 28px;
+  }
+
+  /* Three-column layout for desktop */
+  .tips-list {
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 16px;
+    row-gap: 12px;
+  }
+}
+
+@media (min-width: 1280px) {
+  /* Wider spacing for large desktop */
+  .tips-list {
+    column-gap: 20px;
+    row-gap: 14px;
+  }
+}

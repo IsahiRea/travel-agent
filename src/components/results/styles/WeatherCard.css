@@ -1,0 +1,86 @@
+/* Weather Card */
+.weather-card {
+  display: flex;
+  gap: 16px;
+  padding: 24px 20px;
+  background: white;
+  border: 1px solid #e5ded7;
+  border-radius: 12px;
+}
+
+.weather-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weather-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-title {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: normal;
+  color: #2d2d2d;
+  margin: 0;
+}
+
+.card-description {
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  line-height: 24px;
+  color: #6b5d53;
+  margin: 0;
+}
+
+.temp-boxes {
+  display: flex;
+  gap: 12px;
+}
+
+.temp-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: rgba(242, 230, 220, 0.5);
+  border: 1px solid #e5ded7;
+  border-radius: 8px;
+  min-width: 70px;
+}
+
+.temp-label {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #6b5d53;
+}
+
+.temp-value {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #b5654d;
+  font-weight: 500;
+}
+
+/* Tablet */
+@media (min-width: 769px) {
+  .weather-card {
+    padding: 28px 24px;
+  }
+
+  .temp-value {
+    font-size: 18px;
+    line-height: 28px;
+  }
+}

@@ -1,0 +1,121 @@
+/* Budget Section */
+.budget-section {
+  background: white;
+  border: 1px solid #e5ded7;
+  border-radius: 12px;
+  padding: 24px 20px;
+}
+
+.section-title {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: normal;
+  color: #2d2d2d;
+  margin: 0 0 20px 0;
+}
+
+.budget-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.budget-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f2e6dc;
+}
+
+.budget-item:last-child {
+  border-bottom: none;
+}
+
+.budget-total {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 2px solid #e5ded7;
+}
+
+.budget-label {
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  line-height: 24px;
+  color: #6b5d53;
+}
+
+.budget-total .budget-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2d2d2d;
+}
+
+.budget-value {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #2d2d2d;
+  font-weight: 500;
+}
+
+.budget-total .budget-value {
+  font-size: 18px;
+  color: #b5654d;
+}
+
+/* Responsive Design */
+@media (min-width: 481px) {
+  .budget-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .budget-total {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 769px) {
+  .section-title {
+    font-size: 22px;
+    line-height: 32px;
+    margin-bottom: 24px;
+  }
+
+  .budget-section {
+    padding: 28px 24px;
+  }
+
+  .budget-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .budget-total {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1025px) {
+  .budget-section {
+    padding: 32px 28px;
+  }
+
+  /* Four-column layout for desktop - better space utilization */
+  .budget-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .budget-total {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1280px) {
+  /* Maintain four columns with better spacing */
+  .budget-grid {
+    column-gap: 20px;
+  }
+}

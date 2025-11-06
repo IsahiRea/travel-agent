@@ -1,0 +1,260 @@
+/* Hero Banner */
+.hero-banner {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  border: 1px solid #e5ded7;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0) 100%);
+}
+
+.hero-content {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.itinerary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 33554400px;
+  width: fit-content;
+}
+
+.badge-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.results-badge-text {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: white;
+}
+
+.hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.trip-title {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: normal;
+  color: white;
+  margin: 0;
+}
+
+.trip-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meta-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+}
+
+.meta-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.meta-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.meta-text {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: white;
+}
+
+.arrow-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Streaming badge */
+.streaming-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  margin-left: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+  color: white;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Hero image skeleton loader */
+.hero-image-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #e5ded7 0%,
+    #f0ebe6 50%,
+    #e5ded7 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Photo credit attribution */
+.photo-credit {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  z-index: 3;
+  backdrop-filter: blur(4px);
+}
+
+.photo-credit a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.photo-credit a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* Tablet */
+@media (min-width: 481px) {
+  .hero-banner {
+    height: 260px;
+  }
+
+  .trip-title {
+    font-size: 22px;
+    line-height: 30px;
+  }
+
+  .meta-text {
+    font-size: 15px;
+    line-height: 22px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) {
+  .hero-banner {
+    height: 300px;
+  }
+
+  .trip-title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .trip-meta {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .meta-card {
+    flex: 1;
+  }
+
+  .meta-text {
+    font-size: 16px;
+    line-height: 24px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .hero-banner {
+    height: 320px;
+  }
+
+  .hero-content {
+    top: 25px;
+    left: 25px;
+    right: 25px;
+    bottom: 25px;
+  }
+}
+
+/* Mobile responsiveness for streaming indicators */
+@media (max-width: 768px) {
+  .streaming-badge {
+    font-size: 10px;
+    padding: 3px 10px;
+  }
+}

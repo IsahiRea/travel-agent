@@ -1,0 +1,279 @@
+/* Sidebar - Hidden on mobile/tablet, visible on desktop */
+.trip-sidebar {
+  display: none;
+}
+
+/* Desktop Sidebar Layout (1280px+) */
+@media (min-width: 1280px) {
+  .trip-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: sticky;
+    top: 80px; /* Account for header height */
+    height: fit-content;
+    max-height: calc(100vh - 100px); /* Enable scrolling when content is taller than viewport */
+    overflow-y: auto;
+  }
+
+  /* Compact Hero Image for Sidebar */
+  .hero-banner-sidebar {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    min-height: 280px; /* Prevent collapsing in flex container */
+    flex-shrink: 0; /* Prevent shrinking in flex container */
+    border: 1px solid #e5ded7;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .hero-image-sidebar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hero-overlay-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      rgba(0, 0, 0, 0) 100%
+    );
+  }
+
+  .hero-content-sidebar {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+  }
+
+  .trip-title-sidebar {
+    font-family: Arial, sans-serif;
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Quick Info Card */
+  .quick-info-card {
+    background: white;
+    border: 1px solid #e5ded7;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .info-item-compact {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .info-text-compact {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .info-label-compact {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #6b5d53;
+  }
+
+  .info-value-compact {
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    line-height: 22px;
+    color: #2d2d2d;
+    font-weight: 500;
+  }
+
+  /* Weather Compact Card */
+  .weather-compact-card {
+    background: linear-gradient(
+      135deg,
+      rgba(242, 230, 220, 0.5) 0%,
+      rgba(229, 222, 215, 0.3) 100%
+    );
+    border: 1px solid #e5ded7;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .weather-compact-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .weather-compact-title {
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 500;
+    color: #2d2d2d;
+    margin: 0;
+  }
+
+  .temp-range-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .temp-value-large {
+    font-family: Arial, sans-serif;
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 600;
+    color: #b5654d;
+  }
+
+  .temp-separator {
+    font-size: 20px;
+    color: #6b5d53;
+  }
+
+  .temp-label-text {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #6b5d53;
+    text-align: center;
+    margin: 0;
+  }
+
+  /* Sidebar Navigation */
+  .sidebar-nav {
+    background: white;
+    border: 1px solid #e5ded7;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #6b5d53;
+    transition: all 0.2s;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    line-height: 22px;
+  }
+
+  .nav-link:hover {
+    background: #faf7f2;
+    color: #2d2d2d;
+  }
+
+  .nav-link.active {
+    background: linear-gradient(
+      to right,
+      rgba(212, 165, 116, 0.2),
+      rgba(181, 101, 77, 0.1)
+    );
+    color: #b5654d;
+    font-weight: 500;
+    border-left: 3px solid #b5654d;
+    padding-left: 13px;
+  }
+
+  .nav-link.active svg {
+    color: #b5654d;
+  }
+
+  /* Scrollbar styling for sidebar */
+  .trip-sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .trip-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .trip-sidebar::-webkit-scrollbar-thumb {
+    background: #e5ded7;
+    border-radius: 3px;
+  }
+
+  .trip-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #d4a574;
+  }
+}
+
+/* Extra Large Desktop */
+@media (min-width: 1600px) {
+  .hero-banner-sidebar {
+    height: 340px;
+  }
+
+  .trip-title-sidebar {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .quick-info-card {
+    padding: 24px;
+    gap: 18px;
+  }
+
+  .weather-compact-card {
+    padding: 24px;
+  }
+
+  .info-value-compact {
+    font-size: 16px;
+    line-height: 24px;
+  }
+}
+
+/* Ultra Wide Desktop */
+@media (min-width: 1920px) {
+  .hero-banner-sidebar {
+    height: 360px;
+  }
+
+  .trip-title-sidebar {
+    font-size: 26px;
+    line-height: 34px;
+  }
+
+  .quick-info-card {
+    padding: 26px;
+    gap: 20px;
+  }
+
+  .temp-value-large {
+    font-size: 32px;
+    line-height: 40px;
+  }
+}

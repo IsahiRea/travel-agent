@@ -23,3 +23,25 @@ export async function getOpenAIClient() {
     dangerouslyAllowBrowser: true
   });
 }
+
+// Centralized configuration object
+const config = {
+  amadeus: {
+    apiKey: import.meta.env.VITE_AMADEUS_API_KEY,
+    apiSecret: import.meta.env.VITE_AMADEUS_API_SECRET,
+    baseUrl: 'https://test.api.amadeus.com'
+  },
+  openai: {
+    apiKey: import.meta.env.VITE_OPENAI_API_KEY
+  },
+  openweather: {
+    apiKey: import.meta.env.VITE_OPENWEATHER_API_KEY,
+    baseUrl: 'https://api.openweathermap.org/data/2.5'
+  },
+  unsplash: {
+    accessKey: import.meta.env.VITE_UNSPLASH_ACCESS_KEY,
+    baseUrl: 'https://api.unsplash.com'
+  }
+};
+
+export default config;

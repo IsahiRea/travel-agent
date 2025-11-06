@@ -49,7 +49,7 @@
   color: #2d2d2d;
 }
 
-/* Trip Details Container */
+/* Trip Details Container - Mobile first (single column) */
 .trip-details {
   display: flex;
   flex-direction: column;
@@ -58,503 +58,37 @@
   margin: 0 auto;
 }
 
-/* Hero Banner */
-.hero-banner {
-  position: relative;
+/* Main Content Area */
+.trip-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Mobile Header Section - Visible on mobile/tablet, hidden on desktop */
+.mobile-header-section {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Cards Grid - Mobile stacked, desktop 2-column */
+.cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Full Width Sections */
+.full-width-section {
   width: 100%;
-  height: 240px;
-  border: 1px solid #e5ded7;
-  border-radius: 16px;
-  overflow: hidden;
 }
 
-.hero-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0) 100%);
-}
-
-.hero-content {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
+/* Tips & Packing Grid */
+.tips-packing-grid {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-}
-
-.itinerary-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 33554400px;
-  width: fit-content;
-}
-
-.badge-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.results-badge-text {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: white;
-}
-
-.hero-info {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.trip-title {
-  font-family: Arial, sans-serif;
-  font-size: 20px;
-  line-height: 28px;
-  font-weight: normal;
-  color: white;
-  margin: 0;
-}
-
-.trip-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.meta-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-}
-
-.meta-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.meta-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-}
-
-.meta-text {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: white;
-}
-
-.arrow-icon {
-  width: 16px;
-  height: 16px;
-}
-
-/* Info Grid */
-.info-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.info-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 20px;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-  background: white;
-}
-
-.info-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.info-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.info-label {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b5d53;
-}
-
-.info-value {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  color: #2d2d2d;
-}
-
-/* Weather Card */
-.weather-card {
-  display: flex;
-  gap: 16px;
-  padding: 24px 20px;
-  background: white;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-}
-
-.weather-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.weather-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.card-title {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: normal;
-  color: #2d2d2d;
-  margin: 0;
-}
-
-.card-description {
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  line-height: 24px;
-  color: #6b5d53;
-  margin: 0;
-}
-
-.temp-boxes {
-  display: flex;
-  gap: 12px;
-}
-
-.temp-box {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px;
-  background: rgba(242, 230, 220, 0.5);
-  border: 1px solid #e5ded7;
-  border-radius: 8px;
-  min-width: 70px;
-}
-
-.temp-label {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b5d53;
-}
-
-.temp-value {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  color: #b5654d;
-  font-weight: 500;
-}
-
-/* Recommendation Cards */
-.recommendation-card {
-  background: white;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.rec-image-container {
-  position: relative;
-  width: 100%;
-  height: 200px;
-}
-
-.rec-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.rec-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0) 100%);
-}
-
-.rec-badge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  padding: 6px 12px;
-  border-radius: 33554400px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: white;
-}
-
-.rec-badge.best-deal {
-  background: #d4a574;
-}
-
-.rec-badge.rating {
-  background: #b5654d;
-}
-
-.rec-content {
-  display: flex;
-  gap: 16px;
-  padding: 24px 20px;
-}
-
-.rec-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.rec-details {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.tag-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag {
-  padding: 7px 13px;
-  background: rgba(242, 230, 220, 0.5);
-  border: 1px solid #e5ded7;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b5d53;
-}
-
-.book-button {
-  width: calc(100% - 40px);
-  margin: 0 20px 20px;
-  padding: 14px 32px;
-  background: linear-gradient(to bottom, #b5654d, #d4a574);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  min-height: 48px;
-}
-
-.book-button:hover {
-  opacity: 0.9;
-}
-
-.book-button:active {
-  transform: translateY(1px);
-}
-
-/* Larger Mobile / Small Tablet */
-@media (min-width: 481px) {
-  .results-page {
-    padding: 110px 28px 50px;
-  }
-
-  .results-nav {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .nav-button {
-    width: auto;
-  }
-
-  .trip-details {
-    gap: 30px;
-  }
-
-  .hero-banner {
-    height: 260px;
-  }
-
-  .trip-title {
-    font-size: 22px;
-    line-height: 30px;
-  }
-
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .rec-image-container {
-    height: 240px;
-  }
-
-  .meta-text {
-    font-size: 15px;
-    line-height: 22px;
-  }
-}
-
-/* Tablet */
-@media (min-width: 769px) {
-  .results-page {
-    padding: 120px 32px 60px;
-  }
-
-  .trip-details {
-    max-width: 800px;
-    gap: 32px;
-  }
-
-  .hero-banner {
-    height: 300px;
-  }
-
-  .trip-title {
-    font-size: 24px;
-    line-height: 32px;
-  }
-
-  .trip-meta {
-    flex-direction: row;
-    gap: 12px;
-  }
-
-  .meta-card {
-    flex: 1;
-  }
-
-  .meta-text {
-    font-size: 16px;
-    line-height: 24px;
-  }
-
-  .weather-card {
-    padding: 28px 24px;
-  }
-
-  .rec-image-container {
-    height: 280px;
-  }
-
-  .rec-content {
-    padding: 28px 24px;
-  }
-
-  .info-value {
-    font-size: 18px;
-    line-height: 28px;
-  }
-
-  .temp-value {
-    font-size: 18px;
-    line-height: 28px;
-  }
-}
-
-/* Desktop */
-@media (min-width: 1025px) {
-  .results-page {
-    padding: 140px 40px 80px;
-  }
-
-  .trip-details {
-    max-width: 900px;
-  }
-
-  .hero-banner {
-    height: 320px;
-  }
-
-  .hero-content {
-    top: 25px;
-    left: 25px;
-    right: 25px;
-    bottom: 25px;
-  }
-
-  .rec-image-container {
-    height: 320px;
-  }
-
-  .book-button {
-    width: auto;
-    min-width: 200px;
-    margin: 0 auto 20px;
-    display: block;
-  }
-}
-
-/* Large Desktop */
-@media (min-width: 1280px) {
-  .results-page {
-    padding: 160px 62px 100px;
-  }
-
-  .trip-details {
-    max-width: 1024px;
-  }
-
-  .nav-text {
-    font-size: 14px;
-  }
+  gap: 28px;
 }
 
 /* Loading State */
@@ -573,487 +107,7 @@
   color: #6b5d53;
 }
 
-/* Section Titles */
-.section-title {
-  font-family: Arial, sans-serif;
-  font-size: 20px;
-  line-height: 28px;
-  font-weight: normal;
-  color: #2d2d2d;
-  margin: 0 0 20px 0;
-}
-
-/* Budget Section */
-.budget-section {
-  background: white;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-  padding: 24px 20px;
-}
-
-.budget-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.budget-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #f2e6dc;
-}
-
-.budget-item:last-child {
-  border-bottom: none;
-}
-
-.budget-total {
-  margin-top: 8px;
-  padding-top: 16px;
-  border-top: 2px solid #e5ded7;
-}
-
-.budget-label {
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  line-height: 24px;
-  color: #6b5d53;
-}
-
-.budget-total .budget-label {
-  font-size: 16px;
-  font-weight: 500;
-  color: #2d2d2d;
-}
-
-.budget-value {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  color: #2d2d2d;
-  font-weight: 500;
-}
-
-.budget-total .budget-value {
-  font-size: 18px;
-  color: #b5654d;
-}
-
-/* Itinerary Section */
-.itinerary-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.day-card {
-  background: white;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.day-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e5ded7;
-}
-
-.day-title {
-  font-family: Arial, sans-serif;
-  font-size: 18px;
-  line-height: 28px;
-  font-weight: normal;
-  color: #2d2d2d;
-  margin: 0;
-}
-
-.day-date {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b5d53;
-}
-
-.day-weather {
-  background: rgba(242, 230, 220, 0.3);
-  border: 1px solid #e5ded7;
-  border-radius: 8px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.weather-summary {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-
-.weather-temp {
-  font-family: Arial, sans-serif;
-  font-size: 18px;
-  line-height: 28px;
-  color: #b5654d;
-  font-weight: 500;
-}
-
-.weather-condition {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  color: #2d2d2d;
-}
-
-.weather-description {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b5d53;
-  margin: 0;
-}
-
-.weather-recommendation {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b5d53;
-  margin: 0;
-  font-style: italic;
-}
-
-.subsection-title {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 500;
-  color: #2d2d2d;
-  margin: 0 0 12px 0;
-}
-
-.activities-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.activity-item {
-  padding: 14px;
-  background: rgba(242, 230, 220, 0.2);
-  border: 1px solid #e5ded7;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.activity-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.activity-time {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #b5654d;
-  font-weight: 500;
-}
-
-.activity-cost {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b5d53;
-}
-
-.activity-name {
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  line-height: 22px;
-  font-weight: 500;
-  color: #2d2d2d;
-  margin: 0;
-}
-
-.activity-description {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b5d53;
-  margin: 0;
-}
-
-.weather-dependent-tag {
-  display: inline-block;
-  padding: 4px 10px;
-  background: rgba(181, 101, 77, 0.1);
-  border: 1px solid rgba(181, 101, 77, 0.3);
-  border-radius: 4px;
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  line-height: 16px;
-  color: #b5654d;
-  width: fit-content;
-}
-
-.meals-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.meals-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.meal-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px;
-  background: rgba(242, 230, 220, 0.2);
-  border: 1px solid #e5ded7;
-  border-radius: 8px;
-}
-
-.meal-type {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #b5654d;
-  font-weight: 500;
-}
-
-.meal-name {
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  line-height: 22px;
-  color: #2d2d2d;
-}
-
-.meal-cuisine {
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-  line-height: 18px;
-  color: #6b5d53;
-}
-
-.meal-cost {
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b5d53;
-  margin-top: 4px;
-}
-
-/* Tips Section */
-.tips-section {
-  background: white;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-  padding: 24px 20px;
-}
-
-.tips-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.tip-item {
-  padding: 14px 14px 14px 38px;
-  background: rgba(242, 230, 220, 0.3);
-  border: 1px solid #e5ded7;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  line-height: 24px;
-  color: #2d2d2d;
-  position: relative;
-}
-
-.tip-item::before {
-  content: "✓";
-  position: absolute;
-  left: 14px;
-  color: #b5654d;
-  font-weight: bold;
-}
-
-/* Packing Section */
-.packing-section {
-  background: white;
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-  padding: 24px 20px;
-}
-
-.packing-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.packing-item {
-  padding: 14px 14px 14px 38px;
-  background: rgba(242, 230, 220, 0.3);
-  border: 1px solid #e5ded7;
-  border-radius: 8px;
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  line-height: 24px;
-  color: #2d2d2d;
-  position: relative;
-}
-
-.packing-item::before {
-  content: "□";
-  position: absolute;
-  left: 14px;
-  color: #b5654d;
-  font-size: 16px;
-}
-
-/* Summary Section */
-.summary-section {
-  background: linear-gradient(135deg, rgba(242, 230, 220, 0.5) 0%, rgba(229, 222, 215, 0.3) 100%);
-  border: 1px solid #e5ded7;
-  border-radius: 12px;
-  padding: 24px 20px;
-}
-
-.summary-text {
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  line-height: 26px;
-  color: #2d2d2d;
-  margin: 0;
-}
-
-/* Responsive Design for Larger Screens */
-@media (min-width: 481px) {
-  .budget-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-
-  .budget-total {
-    grid-column: 1 / -1;
-  }
-
-  .meals-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-}
-
-@media (min-width: 769px) {
-  .section-title {
-    font-size: 22px;
-    line-height: 32px;
-    margin-bottom: 24px;
-  }
-
-  .budget-section,
-  .tips-section,
-  .packing-section,
-  .summary-section {
-    padding: 28px 24px;
-  }
-
-  .day-card {
-    padding: 24px;
-    gap: 24px;
-  }
-
-  .budget-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .budget-total {
-    grid-column: 1 / -1;
-  }
-
-  .meals-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .day-title {
-    font-size: 20px;
-  }
-
-  .summary-text {
-    font-size: 16px;
-    line-height: 28px;
-  }
-}
-
-@media (min-width: 1025px) {
-  .budget-section,
-  .tips-section,
-  .packing-section,
-  .summary-section {
-    padding: 32px 28px;
-  }
-
-  .day-card {
-    padding: 28px;
-  }
-}
-
 /* Streaming Indicators - Matching site style */
-.streaming-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  margin-left: 8px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  backdrop-filter: blur(10px);
-  color: white;
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.streaming-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 8px 16px;
-  background: rgba(74, 144, 226, 0.95);
-  color: white;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 8px;
-  backdrop-filter: blur(10px);
-  animation: pulse-fade 2s ease-in-out infinite;
-}
-
 .streaming-message {
   display: flex;
   align-items: center;
@@ -1077,24 +131,6 @@
 }
 
 /* Animations - Matching site style */
-@keyframes pulse-glow {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-@keyframes pulse-fade {
-  0%, 100% {
-    opacity: 0.95;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
 @keyframes dot-pulse {
   0%, 100% {
     transform: scale(1);
@@ -1117,18 +153,165 @@
   }
 }
 
+/* Larger Mobile / Small Tablet */
+@media (min-width: 481px) {
+  .results-page {
+    padding: 110px 28px 50px;
+  }
+
+  .results-nav {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .nav-button {
+    width: auto;
+  }
+
+  .trip-details {
+    gap: 30px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 769px) {
+  .results-page {
+    padding: 120px 32px 60px;
+  }
+
+  .trip-details {
+    max-width: 800px;
+    gap: 32px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .results-page {
+    padding: 140px 40px 80px;
+  }
+
+  .trip-details {
+    max-width: 1000px;
+  }
+
+  /* Cards Grid - 2 columns on desktop */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  /* Tips & Packing side by side on desktop */
+  .tips-packing-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Large Desktop - Sidebar Layout (1280px+) */
+@media (min-width: 1280px) {
+  .results-page {
+    padding: 140px 32px 80px;
+  }
+
+  /* Two-column layout: Sidebar (380px) + Main Content (remaining) */
+  .trip-details {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Hide mobile header on desktop (info shown in sidebar) */
+  .mobile-header-section {
+    display: none;
+  }
+
+  /* Main content area */
+  .trip-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .nav-text {
+    font-size: 14px;
+  }
+
+  /* Cards Grid - 2 columns on large desktop */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  /* Full width sections span entire main content area */
+  .full-width-section {
+    grid-column: 1 / -1;
+  }
+
+  /* Tips & Packing grid - 2 columns */
+  /* .tips-packing-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  } */
+}
+
+/* Extra Large Desktop (1600px+) */
+@media (min-width: 1600px) {
+  .results-page {
+    padding: 160px 80px 100px;
+  }
+
+  /* Wider sidebar and max width */
+  .trip-details {
+    grid-template-columns: 420px 1fr;
+    max-width: 1600px;
+    gap: 40px;
+  }
+
+  /* Cards Grid - 3 columns on extra large
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  } */
+
+  .tips-packing-grid {
+    gap: 28px;
+  }
+}
+
+/* Ultra Wide Desktop (1920px+) - Maximum space utilization */
+@media (min-width: 1920px) {
+  .results-page {
+    padding: 160px 100px 100px;
+  }
+
+  .trip-details {
+    grid-template-columns: 460px 1fr;
+    max-width: 1800px;
+    gap: 48px;
+  }
+
+  .trip-main-content {
+    gap: 28px;
+  }
+
+  .cards-grid {
+    gap: 32px;
+  }
+
+  .tips-packing-grid {
+    gap: 32px;
+  }
+}
+
 /* Mobile responsiveness for streaming indicators */
 @media (max-width: 768px) {
-  .streaming-badge {
-    font-size: 10px;
-    padding: 3px 10px;
-  }
-
-  .streaming-overlay {
-    font-size: 11px;
-    padding: 6px 12px;
-  }
-
   .streaming-message {
     font-size: 13px;
     padding: 12px 16px;
