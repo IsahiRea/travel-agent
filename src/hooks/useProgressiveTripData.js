@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchWeatherData, fetchFlightData, fetchHotelData, generateTripPlan } from '../api';
-import { generateTripPlanStreaming } from '../apis/streamingTripPlanApi';
+import { generateTripPlanStreaming } from '../apis/streamingTripPlanApi.backend';
 
 /**
  * Custom hook for progressive trip data loading with streaming AI generation
