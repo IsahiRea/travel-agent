@@ -27,3 +27,4 @@ docs
 *.sln
 *.sw?
 .vercel
+.env*.local

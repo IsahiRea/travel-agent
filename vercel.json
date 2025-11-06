@@ -37,11 +37,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "VITE_AMADEUS_API_KEY": "@amadeus_api_key",
-    "VITE_AMADEUS_API_SECRET": "@amadeus_api_secret",
-    "VITE_OPENAI_API_KEY": "@openai_api_key",
-    "VITE_OPENWEATHER_API_KEY": "@openweather_api_key"
-  }
+  ]
 }
