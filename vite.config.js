@@ -18,9 +18,9 @@ export default defineConfig(({ mode }) => ({
       // Image optimization plugin - production only
       imagetools({
         defaultDirectives: () => {
-          // Optimize images by default
+          // Optimize images to WebP format for modern browsers
           return new URLSearchParams({
-            format: 'webp;png', // Generate WebP with PNG fallback
+            format: 'webp',
             quality: '80'
           })
         }
