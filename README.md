@@ -79,7 +79,6 @@ travel-agent/
 ├── eslint.config.js          # ESLint configuration
 ├── vite.config.js            # Vite build configuration
 ├── package.json              # Dependencies and scripts
-└── CLAUDE.md                 # Claude Code AI assistant instructions
 ```
 
 ## Getting Started
