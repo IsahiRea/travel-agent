@@ -57,8 +57,6 @@ export async function fetchFlightData(tripData) {
 
 /**
  * Search for city/airport suggestions for autocomplete
- * Note: This function is not yet implemented in the backend
- * For now, it returns an empty array
  * @param {string} keyword - Search keyword (city or airport name)
  * @returns {Promise<Array>} Array of location suggestions
  */
@@ -71,9 +69,29 @@ export async function searchCityAirports(keyword) {
             return [];
         }
 
-        // TODO: Implement backend endpoint for city/airport search
-        console.warn('City/airport search not yet implemented in secure backend');
-        return [];
+        console.log('Calling secure backend for city search...');
+
+        // ✅ Call secure backend endpoint
+        const response = await fetch(`/api/city-search?keyword=${encodeURIComponent(normalized)}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            console.error('City search failed:', response.status);
+            return [];
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            console.error('City search error:', result.error);
+            return [];
+        }
+
+        return result.data || [];
 
     } catch (error) {
         console.error('Error searching locations:', error);

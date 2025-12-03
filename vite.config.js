@@ -27,6 +27,16 @@ export default defineConfig(({ mode }) => ({
       })
     ] : [])
   ],
+  server: {
+    proxy: {
+      // Proxy API requests to production backend during development
+      '/api': {
+        target: 'https://travel-agent-tan-eight.vercel.app',
+        changeOrigin: true,
+        secure: true
+      }
+    }
+  },
   define: {
     'process.env': {}
   },

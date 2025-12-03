@@ -46,7 +46,7 @@ export async function searchDestinationPhotos(query, count = 3) {
  * Note: This is not yet implemented in the backend
  * @param {string} downloadUrl - Download location URL from photo object
  */
-export async function triggerUnsplashDownload(downloadUrl) {
+export async function triggerUnsplashDownload(_downloadUrl) {
   // TODO: Implement backend endpoint for Unsplash download trigger
   console.warn('Unsplash download trigger not yet implemented in secure backend');
 }
@@ -57,7 +57,7 @@ export async function triggerUnsplashDownload(downloadUrl) {
  * @param {string} photoId - Unsplash photo ID
  * @returns {Promise<{url: string, alt: string} | null>}
  */
-export async function getPhotoById(photoId) {
+export async function getPhotoById(_photoId) {
   // TODO: Implement backend endpoint for getting photo by ID
   console.warn('Get photo by ID not yet implemented in secure backend');
   return null;
