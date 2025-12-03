@@ -243,8 +243,11 @@ export default async function handler(req, res) {
       } else if (hotelsListResponse.status === 404) {
         return res.status(200).json({
           success: true,
-          hotels: [],
-          message: 'No hotels found in this destination.'
+          data: {
+            hotels: [],
+            count: 0,
+            message: 'No hotels found in this destination.'
+          }
         });
       }
       throw new Error(`Hotel List API error: ${hotelsListResponse.status}`);
@@ -256,8 +259,11 @@ export default async function handler(req, res) {
     if (!hotelsListData.data || hotelsListData.data.length === 0) {
       return res.status(200).json({
         success: true,
-        hotels: [],
-        message: 'No hotels found in this destination. Try a different city.'
+        data: {
+          hotels: [],
+          count: 0,
+          message: 'No hotels found in this destination. Try a different city.'
+        }
       });
     }
 
@@ -296,14 +302,20 @@ export default async function handler(req, res) {
         console.warn('Hotel offers search failed:', errorData?.errors?.[0]?.detail);
         return res.status(200).json({
           success: true,
-          hotels: [],
-          message: 'No hotel offers available for these dates.'
+          data: {
+            hotels: [],
+            count: 0,
+            message: 'No hotel offers available for these dates.'
+          }
         });
       } else if (offersResponse.status === 404) {
         return res.status(200).json({
           success: true,
-          hotels: [],
-          message: 'No hotel offers available for these dates.'
+          data: {
+            hotels: [],
+            count: 0,
+            message: 'No hotel offers available for these dates.'
+          }
         });
       }
       throw new Error(`Hotel Offers API error: ${offersResponse.status}`);
@@ -315,8 +327,11 @@ export default async function handler(req, res) {
     if (!offersData.data || offersData.data.length === 0) {
       return res.status(200).json({
         success: true,
-        hotels: [],
-        message: 'No hotel offers available for the selected dates. Try different dates.'
+        data: {
+          hotels: [],
+          count: 0,
+          message: 'No hotel offers available for the selected dates. Try different dates.'
+        }
       });
     }
 
