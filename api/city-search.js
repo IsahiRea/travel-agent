@@ -68,9 +68,7 @@ export default async function handler(req, res) {
     const params = new URLSearchParams({
       subType: 'AIRPORT,CITY',
       keyword: keyword.trim(),
-      page: {
-        limit: 10
-      }
+      'page[limit]': '10'
     });
 
     const response = await fetch(

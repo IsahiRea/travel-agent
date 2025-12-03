@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       // Proxy API requests to production backend during development
       '/api': {
-        target: 'https://travel-agent-tan-eight.vercel.app',
+        target: 'https://travel-agent-azure.vercel.app',
         changeOrigin: true,
         secure: true
       }
