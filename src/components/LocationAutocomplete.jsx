@@ -195,7 +195,7 @@ export default function LocationAutocomplete({
         >
           {suggestions.map((suggestion, index) => (
             <li
-              key={suggestion.iataCode}
+              key={`${suggestion.iataCode}-${suggestion.subType}-${index}`}
               id={`${name}-option-${index}`}
               role="option"
               aria-selected={index === selectedIndex}
