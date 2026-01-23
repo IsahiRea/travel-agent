@@ -11,6 +11,9 @@ TODOs, completed optimizations, and future improvement opportunities.
 | AI Streaming | Completed |
 | Utils Refactoring | Completed |
 | Remaining TODOs | 4 items |
+| Code Duplication | 6 opportunities identified |
+| Large Components | 2 components need splitting |
+| Missing Abstractions | 2 hooks to create |
 
 ---
 
@@ -216,6 +219,240 @@ import lightbulbIcon from '../../assets/icons/lightbulb.svg';
 ```
 
 **Priority**: Low (only needed if using Unsplash integration)
+
+---
+
+## Code Duplication & Refactoring Opportunities
+
+### HIGH Priority
+
+#### 1. API Module Duplication (~150 lines reducible)
+
+**Files**:
+- `src/apis/flightApi.backend.js` (lines 17-55)
+- `src/apis/hotelApi.backend.js` (lines 16-54)
+- `src/apis/weatherApi.backend.js` (lines 15-52)
+- `src/apis/tripPlanApi.backend.js` (lines 16-56)
+- `src/apis/unsplashApi.backend.js` (lines 12-41)
+
+**Issue**: All five API modules follow the exact same fetch/error handling pattern.
+
+**Solution**: Create a generic API client utility:
+
+```javascript
+// src/utils/apiClient.js
+export async function apiRequest(endpoint, options = {}) {
+    const { method = 'POST', body, errorMessage = 'Request failed' } = options;
+
+    try {
+        const response = await fetch(endpoint, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            ...(body && { body: JSON.stringify(body) })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Backend error: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.error || errorMessage);
+        }
+
+        return result.data;
+    } catch (error) {
+        console.error(`${errorMessage}:`, error);
+        return { success: false, error: error.message };
+    }
+}
+```
+
+---
+
+#### 2. Planning.jsx Complexity (430 lines)
+
+**File**: `src/pages/Planning.jsx`
+
+**Issue**: Component handles too many responsibilities:
+- 7 state variables with `usePersistedState`
+- Field validation logic
+- Form submission handling
+- Navigation and error state
+
+**Solution**:
+
+1. Extract form field components:
+   - `TripTypeSelector`
+   - `TravelerCounter`
+   - `DatePicker` (with error handling)
+   - `BudgetInput`
+
+2. Extract form logic into custom hook:
+```javascript
+// src/hooks/useTripPlanningForm.js
+export function useTripPlanningForm() {
+    const [tripType, setTripType] = usePersistedState(...);
+    const [travelers, setTravelers] = usePersistedState(...);
+    // ... other state
+
+    const handleIncrement = () => ...;
+    const handleDecrement = () => ...;
+    const handleSwapLocations = () => ...;
+    const validateForm = (formData) => ...;
+
+    return {
+        formState: { tripType, travelers, ... },
+        formActions: { handleIncrement, handleDecrement, ... },
+        validateForm
+    };
+}
+```
+
+---
+
+### MEDIUM Priority
+
+#### 3. FlightCard/HotelCard Duplication
+
+**Files**:
+- `src/components/results/FlightCard.jsx`
+- `src/components/results/HotelCard.jsx`
+
+**Issue**: Both share same structure (handleBookingClick, card layout, CSS import).
+
+**Solution**: Create generic `RecommendationCard` component:
+
+```javascript
+export default function RecommendationCard({
+    type, data, tripData, isStreaming,
+    image, icon, badge, title, description, tags,
+    generateBookingLink, bookingLabel
+}) { ... }
+```
+
+---
+
+#### 4. Mixed Icon Usage Patterns
+
+**Files**:
+- `src/pages/Planning.jsx` - URL-based imports
+- `src/pages/Results.jsx` - Icon component
+- `src/pages/Home.jsx` - Direct SVG imports
+
+**Solution**: Standardize on the existing `Icon` component across all files.
+
+---
+
+#### 5. Inconsistent Error Return Patterns
+
+**Issue**: API functions return errors differently:
+- Some: `{ success: false, error: message }`
+- Some: throw errors
+- `searchCityAirports`: returns empty array
+
+**Solution**: Standardize on single error pattern across all API functions.
+
+---
+
+#### 6. Missing useDebounce Hook
+
+**Files with manual debouncing**:
+- `src/hooks/usePersistedState.js` (lines 40-71)
+- `src/components/LocationAutocomplete.jsx` (lines 39-74)
+
+**Solution**: Create reusable hook:
+
+```javascript
+// src/hooks/useDebounce.js
+import { useState, useEffect } from 'react';
+
+export function useDebounce(value, delay = 300) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedValue(value), delay);
+        return () => clearTimeout(timer);
+    }, [value, delay]);
+
+    return debouncedValue;
+}
+```
+
+---
+
+### LOW Priority
+
+#### 7. TravelTips/PackingList Near-Duplication
+
+**Files**:
+- `src/components/results/TravelTips.jsx`
+- `src/components/results/PackingList.jsx`
+
+**Solution**: Create generic `ListSection` component.
+
+---
+
+#### 8. calculateDuration in ResultsSidebar
+
+**File**: `src/components/results/ResultsSidebar.jsx` (lines 10-16)
+
+**Solution**: Move to `src/utils/formatters.js` as `calculateTripDuration()`.
+
+---
+
+#### 9. Storage Key Inconsistency
+
+**Issue**: `STORAGE_KEYS` constants define `'tripPlanData'` but code uses `'tripFormData'`.
+
+**Solution**: Use constants consistently or update to match actual usage.
+
+---
+
+#### 10. Magic Numbers
+
+**Files with hardcoded values**:
+- `usePersistedState.js`: 500ms debounce, 7 days expiration
+- `LocationAutocomplete.jsx`: 2 char min, 150ms delay, 300ms debounce
+
+**Solution**: Define as named constants.
+
+---
+
+#### 11. Console.log in Production
+
+**Issue**: Extensive console.log statements across API files.
+
+**Solution**: Use development-only logger:
+
+```javascript
+const isDev = import.meta.env.DEV;
+export const devLog = isDev ? console.log.bind(console) : () => {};
+```
+
+---
+
+#### 12. Unused Config Export
+
+**File**: `src/config.js`
+
+**Issue**: `config` object exported but never imported.
+
+**Solution**: Remove or utilize in API modules.
+
+---
+
+## Refactoring Metrics
+
+| Metric | Current | After Refactoring |
+|--------|---------|-------------------|
+| Code Duplication | ~200 lines | ~50 lines |
+| Avg Component Size | 150 lines | 80-100 lines |
+| API Module Lines | 300 total | ~150 total |
+| Reusable Hooks | 4 | 6 |
+| Utility Functions | 12 | 18 |
 
 ---
 
@@ -437,17 +674,27 @@ src/components/
 ## Implementation Priority
 
 ### High Priority
-1. None currently - core features complete
+1. API Module Duplication - Create `apiClient.js` utility (~150 lines reduction)
+2. Planning.jsx Complexity - Extract form components and `useTripPlanningForm` hook
 
 ### Medium Priority
 1. One-way trip option (Planning.jsx)
+2. FlightCard/HotelCard - Create generic `RecommendationCard`
+3. Mixed Icon Usage - Standardize on `Icon` component
+4. Inconsistent Error Patterns - Standardize API error handling
+5. Missing `useDebounce` Hook - Extract common debounce logic
 
 ### Low Priority
 1. Missing icons (ResultsSidebar.jsx)
 2. Unsplash backend endpoints
-3. CSS consolidation
-4. Constants directory
-5. Path aliases
+3. TravelTips/PackingList duplication
+4. calculateDuration extraction
+5. Storage key inconsistency
+6. Magic numbers
+7. Console.log cleanup
+8. CSS consolidation
+9. Constants directory
+10. Path aliases
 
 ---
 
