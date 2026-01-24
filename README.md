@@ -6,11 +6,11 @@ An intelligent travel planning application built with React 19 and Vite that hel
 
 ## Features
 
-- **Smart Trip Planning**: Interactive form with location swap, traveler counter, and budget planning
+- **Smart Trip Planning**: Interactive form with location autocomplete, traveler counter, and budget planning
 - **Real-time Data**: Fetches live flight, hotel, and weather information from multiple APIs
-- **AI-Powered Recommendations**: Uses OpenAI to generate personalized trip plans
+- **AI-Powered Recommendations**: Uses OpenAI with Zod structured outputs to generate personalized trip plans
+- **Progressive Loading**: Stage-by-stage content rendering with skeleton UI for improved perceived performance
 - **Concurrent API Calls**: Parallel data fetching using Promise.all for optimal performance
-- **Advanced Caching**: IndexedDB-based caching system for airport codes and city coordinates
 - **Code Splitting**: Lazy-loaded routes with React.lazy for faster initial load
 - **Session Storage**: Efficient data handling for large trip plans
 - **Mobile-First Design**: Responsive CSS with mobile-first approach
@@ -35,8 +35,7 @@ An intelligent travel planning application built with React 19 and Vite that hel
 - **React 19** - Latest React with Fast Refresh
 - **Vite 7** - Lightning-fast build tool with HMR
 - **React Router 7** - Client-side routing with lazy loading
-- **OpenAI** - AI-powered trip plan generation
-- **IndexedDB** - Client-side data persistence via idb library
+- **OpenAI** - AI-powered trip plan generation with structured outputs
 - **Zod** - Schema validation for API responses
 - **ESLint** - Code quality and consistency
 
@@ -45,40 +44,62 @@ An intelligent travel planning application built with React 19 and Vite that hel
 ```
 travel-agent/
 ├── src/
-│   ├── apis/                  # API integration modules
-│   │   ├── flightApi.js      # Amadeus flight search API
-│   │   ├── hotelApi.js       # Amadeus hotel search API
-│   │   ├── tripPlanApi.js    # OpenAI trip planning integration
-│   │   └── weatherApi.js     # OpenWeather API integration
-│   ├── components/            # Reusable components
-│   │   ├── Header.jsx        # Navigation header
-│   │   └── Header.css
-│   ├── pages/                 # Route components (lazy loaded)
-│   │   ├── Home.jsx          # Landing page
-│   │   ├── Home.css
-│   │   ├── Planning.jsx      # Trip planning form
-│   │   ├── Planning.css
-│   │   ├── Results.jsx       # Trip plan results
-│   │   └── Results.css
-│   ├── utils/                 # Utility functions and helpers
-│   │   ├── cache/            # IndexedDB caching system
-│   │   │   ├── cacheDB.js   # Database schema and initialization
-│   │   │   ├── indexedDBCache.js  # Generic cache operations
-│   │   │   ├── airportCache.js    # Airport code caching
-│   │   │   └── coordinatesCache.js # City coordinates caching
-│   │   ├── formatters.js     # Data formatting utilities
-│   │   ├── logger.js         # Logging utilities
-│   │   └── tokenCache.js     # Amadeus token management
-│   ├── api.js                 # Main API orchestration
-│   ├── config.js              # API keys and configuration
-│   ├── App.jsx                # Root component with routing
-│   └── main.jsx               # Application entry point
-├── public/                    # Static assets
-│   ├── favicon files          # Various icon sizes
-│   └── site.webmanifest      # PWA manifest
-├── eslint.config.js          # ESLint configuration
-├── vite.config.js            # Vite build configuration
-├── package.json              # Dependencies and scripts
+│   ├── apis/                      # API integration modules
+│   │   ├── flightApi.backend.js   # Amadeus flight search API
+│   │   ├── hotelApi.backend.js    # Amadeus hotel search API
+│   │   ├── tripPlanApi.backend.js # OpenAI trip planning integration
+│   │   ├── streamingTripPlanApi.backend.js  # Streaming AI responses
+│   │   ├── weatherApi.backend.js  # OpenWeather API integration
+│   │   └── unsplashApi.backend.js # Unsplash image search
+│   ├── components/                # Reusable components
+│   │   ├── Header.jsx             # Navigation header
+│   │   ├── HeroCarousel.jsx       # Home page carousel
+│   │   ├── Icon.jsx               # SVG icon component
+│   │   ├── LoadingProgress.jsx    # Stage progress indicator
+│   │   ├── LoadingSkeleton.jsx    # Placeholder skeletons
+│   │   ├── LocationAutocomplete.jsx  # City search autocomplete
+│   │   ├── ErrorDisplay.jsx       # Error state component
+│   │   └── results/               # Results page components
+│   │       ├── BudgetBreakdown.jsx
+│   │       ├── DailyItinerary.jsx
+│   │       ├── FlightCard.jsx
+│   │       ├── HotelCard.jsx
+│   │       ├── PackingList.jsx
+│   │       ├── ResultsSidebar.jsx
+│   │       ├── TravelTips.jsx
+│   │       ├── TripHeader.jsx
+│   │       ├── TripInfoCards.jsx
+│   │       ├── TripSummary.jsx
+│   │       └── WeatherCard.jsx
+│   ├── constants/                 # Application constants
+│   │   ├── routes.js              # Route path constants
+│   │   ├── api.js                 # API endpoint constants
+│   │   ├── validation.js          # Form validation rules
+│   │   └── index.js               # Re-export all constants
+│   ├── data/                      # Static data
+│   │   └── heroImages.js          # Home page carousel images
+│   ├── hooks/                     # Custom React hooks
+│   │   ├── useProgressiveTripData.js  # Progressive data loading
+│   │   ├── usePersistedState.js   # State persistence to sessionStorage
+│   │   ├── useActiveSection.js    # Track active section for navigation
+│   │   └── useSmoothScroll.js     # Smooth scroll behavior
+│   ├── pages/                     # Route components (lazy loaded)
+│   │   ├── Home.jsx               # Landing page
+│   │   ├── Planning.jsx           # Trip planning form
+│   │   └── Results.jsx            # Trip plan results
+│   ├── utils/                     # Utility functions
+│   │   ├── formatters.js          # Data formatting utilities
+│   │   ├── logger.js              # Logging utilities
+│   │   └── bookingLinks.js        # Generate booking URLs
+│   ├── api.js                     # Main API orchestration
+│   ├── config.js                  # API keys and configuration
+│   ├── App.jsx                    # Root component with routing
+│   └── main.jsx                   # Application entry point
+├── public/                        # Static assets
+├── docs/                          # Project documentation
+├── eslint.config.js               # ESLint configuration
+├── vite.config.js                 # Vite build configuration
+└── package.json                   # Dependencies and scripts
 ```
 
 ## Getting Started
@@ -129,9 +150,18 @@ npm run dev
 
 ## Key Features Explained
 
+### Progressive Loading
+
+The application uses a progressive loading architecture that reduces perceived wait time from 15+ seconds to under 500ms:
+
+- User navigates to Results page immediately after form submission
+- Data loads in stages: weather → flights → hotels → AI plan
+- Each stage displays content as it becomes available
+- Skeleton UI provides visual feedback during loading
+
 ### Concurrent API Calls
 
-The application uses `Promise.all` to fetch weather, flight, and hotel data simultaneously, significantly reducing total loading time:
+The application uses `Promise.all` to fetch weather, flight, and hotel data simultaneously:
 
 ```javascript
 const [weatherData, flightData, hotelData] = await Promise.all([
@@ -141,18 +171,9 @@ const [weatherData, flightData, hotelData] = await Promise.all([
 ]);
 ```
 
-### IndexedDB Caching
-
-A sophisticated caching system reduces API calls and improves performance:
-
-- **Airport Codes Cache**: Stores city-to-airport code mappings in `src/utils/cache/airportCache.js:20`
-- **Coordinates Cache**: Caches city latitude/longitude data in `src/utils/cache/coordinatesCache.js:15`
-- **Token Cache**: Manages Amadeus OAuth tokens in memory in `src/utils/tokenCache.js:10`
-- **Centralized Schema**: Database versioning and structure managed in `src/utils/cache/cacheDB.js:32`
-
 ### Code Splitting
 
-Routes are lazy-loaded to minimize initial bundle size in `src/App.jsx:7`:
+Routes are lazy-loaded to minimize initial bundle size in `src/App.jsx`:
 
 ```javascript
 const Planning = lazy(() => import('./pages/Planning'));
@@ -161,21 +182,21 @@ const Results = lazy(() => import('./pages/Results'));
 
 ### Session Storage Optimization
 
-Large trip plans are stored in sessionStorage instead of navigation state to improve performance and avoid memory issues. See `src/pages/Planning.jsx:142`.
+Large trip plans are stored in sessionStorage instead of navigation state to improve performance and enable page refresh persistence.
 
 ## API Integration
 
 ### Amadeus API
-- **Flights**: Real-time flight search with price and availability (`src/apis/flightApi.js`)
-- **Hotels**: Hotel search by location with pricing (`src/apis/hotelApi.js`)
+- **Flights**: Real-time flight search with price and availability (`src/apis/flightApi.backend.js`)
+- **Hotels**: Hotel search by location with pricing (`src/apis/hotelApi.backend.js`)
 - **Authentication**: OAuth 2.0 token management with automatic refresh
 
 ### OpenAI API
-- Generates personalized trip plans based on user preferences and fetched data (`src/apis/tripPlanApi.js`)
+- Generates personalized trip plans using structured outputs with Zod schemas (`src/apis/tripPlanApi.backend.js`)
 - Provides recommendations for activities, dining, and local experiences
 
 ### OpenWeather API
-- Fetches weather forecasts for destination cities (`src/apis/weatherApi.js`)
+- Fetches weather forecasts for destination cities (`src/apis/weatherApi.backend.js`)
 - Provides temperature, conditions, and precipitation data
 
 ## Configuration
@@ -210,14 +231,10 @@ The project uses several optimization techniques:
 
 ### Logger (`src/utils/logger.js`)
 - Centralized logging for development
-- IndexedDB operation logging
-- Cache hit/miss tracking
+- API operation logging
 
-### Cache System (`src/utils/cache/`)
-- **cacheDB.js**: Database schema, versioning, and initialization
-- **indexedDBCache.js**: Generic get/set operations for any store
-- **airportCache.js**: City name to airport code mapping
-- **coordinatesCache.js**: City name to lat/lng coordinates
+### Booking Links (`src/utils/bookingLinks.js`)
+- Generate booking URLs for flights and hotels
 
 ## Browser Support
 
@@ -234,21 +251,6 @@ Modern browsers with ES2020+ support:
 3. Use JavaScript (no TypeScript) and CSS (no Tailwind)
 4. Run `npm run lint` before committing
 5. Ensure all validations pass
-
-## Git Workflow
-
-- Current branch: `IsahiRea/issue3`
-- Always work on feature branches
-- Create pull requests for main branch integration
-
-## Recent Updates
-
-- Added concurrent API calls for better performance
-- Implemented IndexedDB caching system
-- Updated city codes to use City Search API
-- Refactored utility functions into organized modules
-- Added session storage optimization for large data
-- Implemented lazy loading for routes
 
 ## License
 
