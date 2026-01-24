@@ -131,17 +131,9 @@ useEffect with debounce (300ms)
     v
 searchCityAirports(query)
     |
-    +-- Check IndexedDB cache first
-    |   +-- Cache hit: return cached results
-    |   +-- Cache miss: continue to API
-    |
     +-- getAmadeusAccessToken()
-    |   +-- Check token cache
-    |   +-- If expired: fetch new token
     |
     +-- Call Amadeus City Search API
-    |
-    +-- Cache results in IndexedDB
     |
     v
 setSuggestions(results)
@@ -297,20 +289,8 @@ fetchWeatherData(tripData)
     v
 getCityCoordinates(tripData.arriveAt)
     |
-    +-- getCachedCoordinates(cityName)
-    |   |
-    |   +-- Open IndexedDB 'travel-agent-cache'
-    |   +-- Query 'city-coordinates' store
-    |   +-- Check timestamp (365 day expiration)
-    |   |
-    |   +-- Cache hit: return { lat, lon }
-    |   +-- Cache miss: continue
-    |
     +-- Fetch from OpenWeatherMap Geocoding API
     |   +-- GET /geo/1.0/direct?q={city}
-    |
-    +-- cacheCoordinates(cityName, lat, lon)
-    |   +-- Store in IndexedDB
     |
     v
 Return { lat, lon }
@@ -335,21 +315,11 @@ fetchFlightData(tripData)
     v
 getAirportCode(tripData.departFrom)
     |
-    +-- getCachedAirportCode(cityName)
-    |   +-- Query IndexedDB 'airport-codes' store
-    |   +-- Check timestamp (30 day expiration)
-    |   +-- Cache hit: return code
-    |   +-- Cache miss: continue
-    |
     +-- getAmadeusAccessToken()
-    |   +-- Check tokenCache (in-memory)
-    |   +-- If valid: return cached token
-    |   +-- If expired: POST /v1/security/oauth2/token
+    |   +-- POST /v1/security/oauth2/token
     |
     +-- Call Amadeus City Search API
     |   +-- GET /v1/reference-data/locations/cities
-    |
-    +-- cacheAirportCode(cityName, code)
     |
     v
 Return IATA code (e.g., 'JFK')
@@ -418,103 +388,6 @@ Validate against Zod schema (automatic)
     |
     v
 Return structured trip plan object
-```
-
----
-
-## Caching Execution
-
-### IndexedDB Cache Read
-
-```javascript
-async function getCachedCoordinates(cityName) {
-  // Normalize query for consistent lookups
-  const query = cityName.toLowerCase().trim();
-
-  // Open database
-  const db = await openDB('travel-agent-cache', 2);
-
-  // Read from store
-  const cached = await db.get('city-coordinates', query);
-
-  if (!cached) {
-    console.log(`Cache MISS: "${cityName}"`);
-    return null;
-  }
-
-  // Check expiration (365 days)
-  const age = Date.now() - cached.timestamp;
-  const maxAge = 365 * 24 * 60 * 60 * 1000;
-
-  if (age > maxAge) {
-    console.log(`Cache EXPIRED: "${cityName}"`);
-    return null;
-  }
-
-  console.log(`Cache HIT: "${cityName}" -> (${cached.lat}, ${cached.lon})`);
-  return { lat: cached.lat, lon: cached.lon };
-}
-```
-
-### IndexedDB Cache Write
-
-```javascript
-async function cacheCoordinates(cityName, lat, lon) {
-  const query = cityName.toLowerCase().trim();
-
-  const db = await openDB('travel-agent-cache', 2);
-
-  await db.put('city-coordinates', {
-    query,                    // Primary key
-    lat,
-    lon,
-    timestamp: Date.now(),
-    originalQuery: cityName   // For debugging
-  });
-
-  console.log(`Cache SET: "${cityName}" -> (${lat}, ${lon})`);
-}
-```
-
-### Token Cache (In-Memory)
-
-```javascript
-// Token stored in module scope
-let tokenCache = {
-  token: null,
-  expiresAt: null
-};
-
-async function getAmadeusAccessToken() {
-  // Check if token exists and is valid
-  if (tokenCache.token && Date.now() < tokenCache.expiresAt) {
-    return tokenCache.token;
-  }
-
-  // Fetch new token
-  const response = await fetch(
-    'https://test.api.amadeus.com/v1/security/oauth2/token',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: API_KEY,
-        client_secret: API_SECRET
-      })
-    }
-  );
-
-  const data = await response.json();
-
-  // Cache token (expires_in is in seconds, subtract 60s buffer)
-  tokenCache = {
-    token: data.access_token,
-    expiresAt: Date.now() + (data.expires_in - 60) * 1000
-  };
-
-  return data.access_token;
-}
 ```
 
 ---

@@ -6,10 +6,9 @@ TODOs, completed optimizations, and future improvement opportunities.
 
 | Category | Status |
 |----------|--------|
-| Cache System | Completed |
 | Progressive Loading | Completed |
 | AI Streaming | Completed |
-| Utils Refactoring | Completed |
+| Constants Directory | Completed |
 | Remaining TODOs | 4 items |
 | Code Duplication | 6 opportunities identified |
 | Large Components | 2 components need splitting |
@@ -19,63 +18,7 @@ TODOs, completed optimizations, and future improvement opportunities.
 
 ## Completed Refactors
 
-### 1. Cache System Refactoring
-
-**Summary**: Unified IndexedDB caching infrastructure with 60% code reduction.
-
-**Before**:
-```
-src/utils/
-+-- airportCache.js      (205 lines - standalone)
-+-- coordinatesCache.js  (199 lines - standalone)
-+-- tokenCache.js        (144 lines)
-```
-
-**After**:
-```
-src/utils/
-+-- cache/
-|   +-- indexedDBCache.js    (228 lines - base class)
-|   +-- cacheDB.js           (61 lines - centralized schema)
-|   +-- airportCache.js      (100 lines - extends base)
-|   +-- coordinatesCache.js  (105 lines - extends base)
-+-- formatters.js            (47 lines - shared utilities)
-+-- logger.js                (84 lines - consistent logging)
-+-- tokenCache.js            (169 lines - added stats)
-```
-
-**Benefits**:
-- 60% code reduction in cache implementations
-- Consistent behavior across all caches
-- Centralized schema management
-- Easy to extend - new caches in ~30 lines
-- Unified logging with consistent formatting
-
-**Adding New Cache Types**:
-```javascript
-// Only ~30 lines needed for a new cache type
-class WeatherCache extends IndexedDBCache {
-  constructor() {
-    super('weather-forecast', 'Weather', 5 * 60 * 60 * 1000); // 5 hours
-  }
-
-  createCacheEntry(forecast, originalKey) {
-    return { forecast, originalQuery: originalKey };
-  }
-
-  extractValue(cached) {
-    return cached.forecast;
-  }
-
-  formatValue(cached) {
-    return `${cached.forecast.temp}C`;
-  }
-}
-```
-
----
-
-### 2. Progressive Loading Implementation
+### 1. Progressive Loading Implementation
 
 **Summary**: Changed from blocking 15-20 second wait to progressive data loading.
 
@@ -98,7 +41,7 @@ class WeatherCache extends IndexedDBCache {
 
 ---
 
-### 3. AI Streaming Support
+### 2. AI Streaming Support
 
 **Summary**: Added streaming trip plan generation for real-time feedback.
 
@@ -115,6 +58,27 @@ class WeatherCache extends IndexedDBCache {
 - No streaming required (full response needed for navigation)
 - AI SDK would add +105KB bundle size with no clear benefit
 - Current implementation is simpler and easier to maintain
+
+---
+
+### 3. Constants Directory
+
+**Summary**: Created centralized constants directory for routes, API endpoints, and validation rules.
+
+**Structure**:
+```
+src/constants/
++-- routes.js         # Route path constants
++-- api.js            # API endpoints, timeouts
++-- validation.js     # Form validation rules
++-- index.js          # Re-export all
+```
+
+**Benefits**:
+- Single source of truth for constants
+- Easy to maintain and update
+- Prevents magic strings in components
+- Clear organization of application-wide values
 
 ---
 
@@ -164,7 +128,7 @@ const [tripType, setTripType] = useState('round-trip');
 
 **Affected Files**:
 - `src/pages/Planning.jsx` - Form UI and validation
-- `src/apis/flightApi.js` - API call parameters
+- `src/apis/flightApi.backend.js` - API call parameters
 - `src/pages/Planning.css` - Toggle styling
 
 ---
@@ -229,11 +193,12 @@ import lightbulbIcon from '../../assets/icons/lightbulb.svg';
 #### 1. API Module Duplication (~150 lines reducible)
 
 **Files**:
-- `src/apis/flightApi.backend.js` (lines 17-55)
-- `src/apis/hotelApi.backend.js` (lines 16-54)
-- `src/apis/weatherApi.backend.js` (lines 15-52)
-- `src/apis/tripPlanApi.backend.js` (lines 16-56)
-- `src/apis/unsplashApi.backend.js` (lines 12-41)
+- `src/apis/flightApi.backend.js`
+- `src/apis/hotelApi.backend.js`
+- `src/apis/weatherApi.backend.js`
+- `src/apis/tripPlanApi.backend.js`
+- `src/apis/unsplashApi.backend.js`
+- `src/apis/streamingTripPlanApi.backend.js`
 
 **Issue**: All five API modules follow the exact same fetch/error handling pattern.
 
@@ -450,9 +415,9 @@ export const devLog = isDev ? console.log.bind(console) : () => {};
 |--------|---------|-------------------|
 | Code Duplication | ~200 lines | ~50 lines |
 | Avg Component Size | 150 lines | 80-100 lines |
-| API Module Lines | 300 total | ~150 total |
+| API Module Lines | ~400 total | ~200 total |
 | Reusable Hooks | 4 | 6 |
-| Utility Functions | 12 | 18 |
+| Utility Functions | 6 | 10 |
 
 ---
 
@@ -536,35 +501,7 @@ src/styles/
 
 ---
 
-### 3. Constants Directory
-
-**Recommendation**: Create `src/constants/` directory:
-
-```
-src/constants/
-+-- routes.js         # Route paths
-+-- api.js            # API endpoints, timeouts
-+-- validation.js     # Form validation rules
-+-- index.js          # Re-export all
-```
-
-**Example `routes.js`**:
-```javascript
-export const ROUTES = {
-  HOME: '/',
-  PLANNING: '/planning',
-  RESULTS: '/results'
-};
-
-export const NAV_LINKS = [
-  { path: ROUTES.HOME, label: 'Home' },
-  { path: ROUTES.PLANNING, label: 'Plan Trip' }
-];
-```
-
----
-
-### 4. Path Aliases
+### 3. Path Aliases
 
 **Recommendation**: Add to `vite.config.js`:
 
@@ -595,7 +532,7 @@ import { formatDate } from '@utils/formatters';
 
 ---
 
-### 5. Component Organization
+### 4. Component Organization
 
 **Future consideration** (when project grows to 5+ pages or 20+ components):
 
@@ -693,8 +630,7 @@ src/components/
 6. Magic numbers
 7. Console.log cleanup
 8. CSS consolidation
-9. Constants directory
-10. Path aliases
+9. Path aliases
 
 ---
 

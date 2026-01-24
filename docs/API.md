@@ -38,13 +38,15 @@ Display Results to User
 
 ```
 src/
-+-- config.js                 # API client initialization
-+-- api.js                    # Central export point for all APIs
++-- config.js                        # API client initialization
++-- api.js                           # Central export point for all APIs
 +-- apis/
-    +-- flightApi.js         # Amadeus Flight API integration
-    +-- hotelApi.js          # Amadeus Hotel API integration
-    +-- weatherApi.js        # OpenWeatherMap API integration
-    +-- tripPlanApi.js       # OpenAI integration + trip generation
+    +-- flightApi.backend.js         # Amadeus Flight API integration
+    +-- hotelApi.backend.js          # Amadeus Hotel API integration
+    +-- weatherApi.backend.js        # OpenWeatherMap API integration
+    +-- tripPlanApi.backend.js       # OpenAI integration + trip generation
+    +-- streamingTripPlanApi.backend.js  # Streaming AI responses
+    +-- unsplashApi.backend.js       # Unsplash image search
 ```
 
 ---
@@ -63,7 +65,7 @@ src/
 
 **Endpoint**: Flight Offers Search API
 
-**Location**: `src/apis/flightApi.js`
+**Location**: `src/apis/flightApi.backend.js`
 
 **Function**: `fetchFlightData(tripData)`
 
@@ -124,7 +126,7 @@ amadeus.shopping.flightOffersSearch.get({
 
 **Endpoint**: Hotel Search API
 
-**Location**: `src/apis/hotelApi.js`
+**Location**: `src/apis/hotelApi.backend.js`
 
 **Function**: `fetchHotelData(tripData)`
 
@@ -154,13 +156,12 @@ amadeus.shopping.flightOffersSearch.get({
 
 **Endpoint**: City Search / Airport Lookup API
 
-**Location**: `src/apis/flightApi.js`
+**Location**: `src/apis/flightApi.backend.js`
 
 **Function**: `getAirportCode(cityName, token)`
 
 **Features**:
 - Returns IATA airport codes for city names
-- Results cached in IndexedDB for 30 days
 - Supports 40+ major cities worldwide
 
 **Supported Cities**:
@@ -185,7 +186,7 @@ amadeus.shopping.flightOffersSearch.get({
 
 **Endpoint**: `https://api.openweathermap.org/data/2.5/forecast`
 
-**Location**: `src/apis/weatherApi.js`
+**Location**: `src/apis/weatherApi.backend.js`
 
 **Function**: `fetchWeatherData(tripData)`
 
@@ -226,10 +227,8 @@ amadeus.shopping.flightOffersSearch.get({
 **Endpoint**: `https://api.openweathermap.org/geo/1.0/direct`
 
 **Process**:
-1. Check IndexedDB cache for coordinates
-2. If cache miss, call Geocoding API
-3. Store result in cache (365 days expiration)
-4. Return coordinates for weather forecast
+1. Call Geocoding API with city name
+2. Return coordinates for weather forecast
 
 ---
 
@@ -246,7 +245,7 @@ amadeus.shopping.flightOffersSearch.get({
 
 **Model**: `gpt-4o-2024-08-06` (supports structured outputs)
 
-**Location**: `src/apis/tripPlanApi.js`
+**Location**: `src/apis/tripPlanApi.backend.js`
 
 **Function**: `generateTripPlan(data)`
 

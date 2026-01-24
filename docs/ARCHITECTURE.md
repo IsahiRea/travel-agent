@@ -1,6 +1,6 @@
 # Application Architecture
 
-System design, data flow, component architecture, and caching strategies.
+System design, data flow, component architecture, and performance strategies.
 
 ## Application Overview
 
@@ -10,7 +10,6 @@ System design, data flow, component architecture, and caching strategies.
 - **Vite 7** - Build tool with Fast Refresh
 - **React Router DOM 7** - Client-side routing
 - **OpenAI SDK** - AI integration
-- **IndexedDB (idb)** - Browser caching
 - **Zod** - Schema validation
 
 ### Entry Points
@@ -89,13 +88,13 @@ Planning Page                      Results Page
 Submit form -------------------------> Show loading skeleton
      |                                      |
      +-- Save to sessionStorage       Fetch weather (stream)
-                                            | display weather
-                                       Fetch flights (stream)
-                                            | display flights
-                                       Fetch hotels (stream)
-                                            | display hotels
-                                       Generate AI plan (stream)
-                                            | display itinerary
+                                           | display weather
+                                      Fetch flights (stream)
+                                           | display flights
+                                      Fetch hotels (stream)
+                                           | display hotels
+                                      Generate AI plan (stream)
+                                           | display itinerary
 ```
 
 ### State Management Flow
@@ -157,6 +156,7 @@ src/
 +-- components/
 |   +-- Header.jsx              # Navigation header
 |   +-- HeroCarousel.jsx        # Home page carousel
+|   +-- Icon.jsx                # SVG icon component
 |   +-- LoadingProgress.jsx     # Stage progress indicator
 |   +-- LoadingSkeleton.jsx     # Placeholder skeletons
 |   +-- LocationAutocomplete.jsx # City search autocomplete
@@ -167,7 +167,6 @@ src/
 |       +-- FlightCard.jsx
 |       +-- HotelCard.jsx
 |       +-- PackingList.jsx
-|       +-- RecommendationCard.jsx
 |       +-- ResultsSidebar.jsx
 |       +-- TravelTips.jsx
 |       +-- TripHeader.jsx
@@ -182,9 +181,31 @@ src/
 |
 +-- hooks/
 |   +-- useProgressiveTripData.js   # Progressive data loading
-|   +-- useStreamingTripPlan.js     # AI streaming support
-|   +-- useTripData.js              # Trip data management
-|   +-- useAirportSuggestions.js    # Airport autocomplete
+|   +-- usePersistedState.js        # State persistence to sessionStorage
+|   +-- useActiveSection.js         # Track active section for navigation
+|   +-- useSmoothScroll.js          # Smooth scroll behavior
+|
++-- utils/
+|   +-- logger.js               # Centralized logging
+|   +-- formatters.js           # Date/currency formatting
+|   +-- bookingLinks.js         # Generate booking URLs
+|
++-- constants/
+|   +-- routes.js               # Route path constants
+|   +-- api.js                  # API endpoint constants
+|   +-- validation.js           # Form validation rules
+|   +-- index.js                # Re-export all constants
+|
++-- data/
+|   +-- heroImages.js           # Home page carousel images
+|
++-- apis/
+    +-- flightApi.backend.js           # Amadeus flight search
+    +-- hotelApi.backend.js            # Amadeus hotel search
+    +-- weatherApi.backend.js          # OpenWeather integration
+    +-- tripPlanApi.backend.js         # OpenAI trip planning
+    +-- streamingTripPlanApi.backend.js # Streaming AI responses
+    +-- unsplashApi.backend.js         # Unsplash image search
 ```
 
 ### Component Hierarchy (Results Page)
@@ -225,156 +246,6 @@ Results Page
 
 ---
 
-## Caching System
-
-### Overview
-
-The application uses IndexedDB for persistent caching to reduce API calls and improve performance.
-
-```
-src/utils/
-+-- cache/
-|   +-- cacheDB.js           # Centralized schema management
-|   +-- indexedDBCache.js    # Generic cache operations
-|   +-- airportCache.js      # Airport code caching
-|   +-- coordinatesCache.js  # City coordinates caching
-+-- tokenCache.js            # In-memory OAuth token cache
-+-- formatters.js            # Formatting utilities
-+-- logger.js                # Centralized logging
-```
-
-### Database Schema
-
-**Database Name**: `travel-agent-cache`
-**Version**: 2
-
-| Object Store | Key Path | Purpose | Cache Duration |
-|--------------|----------|---------|----------------|
-| `airport-codes` | `query` | City name to IATA code | 30 days |
-| `city-coordinates` | `query` | City name to lat/lon | 365 days |
-
-### Airport Code Cache
-
-**Location**: `src/utils/cache/airportCache.js`
-
-**Purpose**: Reduces Amadeus City Search API calls by caching city-to-airport mappings.
-
-**Cache Entry Structure**:
-```javascript
-{
-  query: "paris",           // Normalized search query (key)
-  code: "CDG",              // IATA airport code
-  timestamp: 1699999999000, // Unix timestamp
-  originalQuery: "Paris"    // Original query for debugging
-}
-```
-
-**API**:
-```javascript
-import { getCachedAirportCode, cacheAirportCode } from '../utils/cache/airportCache.js';
-
-// Check cache
-const code = await getCachedAirportCode('Paris');
-
-// Store in cache
-await cacheAirportCode('Paris', 'CDG');
-```
-
-### Coordinates Cache
-
-**Location**: `src/utils/cache/coordinatesCache.js`
-
-**Purpose**: Reduces OpenWeatherMap Geocoding API calls by caching city coordinates.
-
-**Cache Entry Structure**:
-```javascript
-{
-  query: "paris",                // Normalized search query (key)
-  lat: 48.8566,                  // Latitude
-  lon: 2.3522,                   // Longitude
-  timestamp: 1699999999000,      // Unix timestamp
-  originalQuery: "Paris"         // Original query for debugging
-}
-```
-
-**API**:
-```javascript
-import { getCachedCoordinates, cacheCoordinates } from '../utils/cache/coordinatesCache.js';
-
-// Check cache
-const coords = await getCachedCoordinates('Paris');
-// Returns: { lat: 48.8566, lon: 2.3522 } or null
-
-// Store in cache
-await cacheCoordinates('Paris', 48.8566, 2.3522);
-```
-
-**Performance Gains**:
-- **API call reduction**: 90% fewer geocoding calls
-- **Response time**: 99.7% faster after first call (<1ms vs 200ms)
-
-### Token Cache
-
-**Location**: `src/utils/tokenCache.js`
-
-**Purpose**: In-memory caching of Amadeus OAuth tokens to prevent unnecessary authentication API calls.
-
-**Features**:
-- Stores access tokens with expiration tracking
-- Automatic token refresh before expiration
-
-### Cache Flow Diagram
-
-```
-User searches weather for "Paris"
-        |
-        v
-Check IndexedDB coordinates cache
-        |
-    Cache Hit? -------> YES --> Return cached coords [<1ms]
-        |
-       NO
-        |
-        v
-Fetch from OpenWeatherMap Geocoding API [100-300ms]
-        |
-        v
-Store coordinates in IndexedDB cache
-        |
-        v
-Return fetched coordinates
-```
-
-### Cache Statistics
-
-Each cache provides statistics:
-```javascript
-const stats = await getCacheStats();
-/*
-{
-  totalEntries: 50,
-  validEntries: 48,
-  expiredEntries: 2,
-  oldestEntry: 1697000000000,
-  newestEntry: 1699999999000,
-  cacheSize: 4800
-}
-*/
-```
-
-### Browser Compatibility
-
-IndexedDB is supported in:
-- Chrome 24+
-- Firefox 16+
-- Safari 10+
-- Edge 12+
-- All modern mobile browsers
-
-**Coverage**: 98%+ of users
-
----
-
 ## Performance Architecture
 
 ### Optimization Strategies
@@ -383,24 +254,15 @@ IndexedDB is supported in:
    - Uses `Promise.all` to fetch weather, flights, and hotels in parallel
    - Reduces total wait time vs sequential fetching
 
-2. **IndexedDB Caching**
-   - Airport codes cached for 30 days
-   - City coordinates cached for 365 days
-   - Eliminates repeat API calls for same queries
-
-3. **Code Splitting**
+2. **Code Splitting**
    - Route components lazy loaded with `React.lazy()`
    - Suspense boundaries with loading fallback
 
-4. **Session Storage**
+3. **Session Storage**
    - Uses sessionStorage for large trip data
    - Faster than navigation state for large objects
 
-5. **Token Caching**
-   - Amadeus OAuth tokens cached in memory
-   - Prevents authentication on every request
-
-6. **Build Optimizations**
+4. **Build Optimizations**
    - Image optimization with vite-imagetools
    - Gzip/Brotli compression for production
    - Tree shaking removes unused code
@@ -493,5 +355,3 @@ Complete  ErrorDisplay Shows
           +-- Retry button
           +-- Back to Planning button
 ```
-
-**Philosophy**: Cache is an optimization, not a requirement. App must work even if IndexedDB fails.
