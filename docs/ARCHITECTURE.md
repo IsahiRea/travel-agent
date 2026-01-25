@@ -161,6 +161,10 @@ src/
 |   +-- LoadingSkeleton.jsx     # Placeholder skeletons
 |   +-- LocationAutocomplete.jsx # City search autocomplete
 |   +-- ErrorDisplay.jsx        # Error state component
+|   +-- planning/               # Planning page components
+|   |   +-- TravelerCounter.jsx     # Traveler increment/decrement
+|   |   +-- DateSelectionSection.jsx # Date inputs with validation
+|   |   +-- index.js            # Re-exports
 |   +-- results/                # Results page components
 |       +-- BudgetBreakdown.jsx
 |       +-- DailyItinerary.jsx
@@ -182,10 +186,12 @@ src/
 +-- hooks/
 |   +-- useProgressiveTripData.js   # Progressive data loading
 |   +-- usePersistedState.js        # State persistence to sessionStorage
+|   +-- useTripPlanningForm.js      # Form state management for Planning
 |   +-- useActiveSection.js         # Track active section for navigation
 |   +-- useSmoothScroll.js          # Smooth scroll behavior
 |
 +-- utils/
+|   +-- apiClient.js            # Standardized API request handling
 |   +-- logger.js               # Centralized logging
 |   +-- formatters.js           # Date/currency formatting
 |   +-- bookingLinks.js         # Generate booking URLs

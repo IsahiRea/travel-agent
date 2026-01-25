@@ -4,6 +4,8 @@
  * API Documentation: https://developers.amadeus.com/
  */
 
+import { apiPost, withErrorHandling } from '../utils/apiClient.js';
+
 /**
  * Fetch hotel data from secure backend endpoint
  * @param {Object} tripData - Trip planning data
@@ -14,41 +16,16 @@
  * @returns {Promise<Object>} Hotel search results
  */
 export async function fetchHotelData(tripData) {
-    try {
-        console.log('Calling secure backend for hotels...');
-
-        // ✅ NO API KEY in frontend code - calling secure backend
-        const response = await fetch('/api/hotels', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                arriveAt: tripData.arriveAt,
-                departDate: tripData.departDate,
-                returnDate: tripData.returnDate,
-                travelers: tripData.travelers
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Backend error: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (!result.success) {
-            throw new Error(result.error || 'Failed to fetch hotels');
-        }
-
-        return result.data;
-
-    } catch (error) {
-        console.error('Error fetching hotel data:', error);
-        return {
-            success: false,
-            error: error.message
-        };
-    }
+  return withErrorHandling(
+    () => apiPost('/api/hotels', {
+      arriveAt: tripData.arriveAt,
+      departDate: tripData.departDate,
+      returnDate: tripData.returnDate,
+      travelers: tripData.travelers,
+    }, {
+      serviceName: 'hotels',
+      errorMessage: 'Failed to fetch hotels',
+    }),
+    'hotel'
+  );
 }
