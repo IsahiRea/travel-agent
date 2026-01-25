@@ -59,6 +59,10 @@ travel-agent/
 │   │   ├── LoadingSkeleton.jsx    # Placeholder skeletons
 │   │   ├── LocationAutocomplete.jsx  # City search autocomplete
 │   │   ├── ErrorDisplay.jsx       # Error state component
+│   │   ├── planning/              # Planning page components
+│   │   │   ├── TravelerCounter.jsx    # Traveler increment/decrement
+│   │   │   ├── DateSelectionSection.jsx  # Date inputs with validation
+│   │   │   └── index.js           # Re-exports
 │   │   └── results/               # Results page components
 │   │       ├── BudgetBreakdown.jsx
 │   │       ├── DailyItinerary.jsx
@@ -81,6 +85,7 @@ travel-agent/
 │   ├── hooks/                     # Custom React hooks
 │   │   ├── useProgressiveTripData.js  # Progressive data loading
 │   │   ├── usePersistedState.js   # State persistence to sessionStorage
+│   │   ├── useTripPlanningForm.js # Form state management for Planning page
 │   │   ├── useActiveSection.js    # Track active section for navigation
 │   │   └── useSmoothScroll.js     # Smooth scroll behavior
 │   ├── pages/                     # Route components (lazy loaded)
@@ -88,6 +93,7 @@ travel-agent/
 │   │   ├── Planning.jsx           # Trip planning form
 │   │   └── Results.jsx            # Trip plan results
 │   ├── utils/                     # Utility functions
+│   │   ├── apiClient.js           # Standardized API request handling
 │   │   ├── formatters.js          # Data formatting utilities
 │   │   ├── logger.js              # Logging utilities
 │   │   └── bookingLinks.js        # Generate booking URLs
@@ -223,6 +229,11 @@ The project uses several optimization techniques:
 - **Lazy Loading**: React.lazy() for route-based code splitting
 
 ## Utilities
+
+### API Client (`src/utils/apiClient.js`)
+- Standardized POST and GET request handling
+- Consistent error handling across all API modules
+- Reduces code duplication in API files
 
 ### Formatters (`src/utils/formatters.js`)
 - Date formatting

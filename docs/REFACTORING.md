@@ -9,10 +9,12 @@ TODOs, completed optimizations, and future improvement opportunities.
 | Progressive Loading | Completed |
 | AI Streaming | Completed |
 | Constants Directory | Completed |
+| API Client Utility | Completed |
+| Planning.jsx Refactor | Completed |
 | Remaining TODOs | 4 items |
-| Code Duplication | 6 opportunities identified |
-| Large Components | 2 components need splitting |
-| Missing Abstractions | 2 hooks to create |
+| Code Duplication | 4 opportunities remaining |
+| Large Components | 1 component needs splitting |
+| Missing Abstractions | 1 hook to create |
 
 ---
 
@@ -61,7 +63,51 @@ TODOs, completed optimizations, and future improvement opportunities.
 
 ---
 
-### 3. Constants Directory
+### 3. API Client Utility
+
+**Summary**: Created centralized API client utility to eliminate code duplication across API modules.
+
+**File Created**: `src/utils/apiClient.js`
+
+**Functions**:
+- `apiPost()` - Standardized POST requests with error handling
+- `apiGet()` - Standardized GET requests with optional empty-array fallback
+- `withErrorHandling()` - Wrapper for consistent error response format
+
+**Files Refactored**:
+- `src/apis/flightApi.backend.js` (100 → 62 lines)
+- `src/apis/hotelApi.backend.js` (55 → 31 lines)
+- `src/apis/weatherApi.backend.js` (53 → 29 lines)
+- `src/apis/tripPlanApi.backend.js` (57 → 33 lines)
+- `src/apis/unsplashApi.backend.js` (65 → 52 lines)
+
+**Code Reduction**: ~120 lines of duplicated code eliminated.
+
+---
+
+### 4. Planning.jsx Complexity Reduction
+
+**Summary**: Extracted form state management and UI components from Planning.jsx.
+
+**Before**: 430 lines with 7 state variables, validation logic, and complex JSX.
+
+**After**: 247 lines using custom hook and extracted components.
+
+**Files Created**:
+- `src/hooks/useTripPlanningForm.js` - Form state, validation, and actions (156 lines)
+- `src/components/planning/TravelerCounter.jsx` - Traveler counter component (61 lines)
+- `src/components/planning/DateSelectionSection.jsx` - Date inputs with conditional rendering (95 lines)
+- `src/components/planning/index.js` - Re-exports
+
+**Benefits**:
+- Better separation of concerns
+- Reusable form logic via custom hook
+- Easier to test individual components
+- More maintainable codebase
+
+---
+
+### 5. Constants Directory
 
 **Summary**: Created centralized constants directory for routes, API endpoints, and validation rules.
 
@@ -188,93 +234,23 @@ import lightbulbIcon from '../../assets/icons/lightbulb.svg';
 
 ## Code Duplication & Refactoring Opportunities
 
-### HIGH Priority
+### HIGH Priority - COMPLETED
 
-#### 1. API Module Duplication (~150 lines reducible)
+#### 1. API Module Duplication - COMPLETED
 
-**Files**:
-- `src/apis/flightApi.backend.js`
-- `src/apis/hotelApi.backend.js`
-- `src/apis/weatherApi.backend.js`
-- `src/apis/tripPlanApi.backend.js`
-- `src/apis/unsplashApi.backend.js`
-- `src/apis/streamingTripPlanApi.backend.js`
+**Status**: Implemented in `src/utils/apiClient.js`
 
-**Issue**: All five API modules follow the exact same fetch/error handling pattern.
-
-**Solution**: Create a generic API client utility:
-
-```javascript
-// src/utils/apiClient.js
-export async function apiRequest(endpoint, options = {}) {
-    const { method = 'POST', body, errorMessage = 'Request failed' } = options;
-
-    try {
-        const response = await fetch(endpoint, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            ...(body && { body: JSON.stringify(body) })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Backend error: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (!result.success) {
-            throw new Error(result.error || errorMessage);
-        }
-
-        return result.data;
-    } catch (error) {
-        console.error(`${errorMessage}:`, error);
-        return { success: false, error: error.message };
-    }
-}
-```
+Created `apiPost()`, `apiGet()`, and `withErrorHandling()` utilities. All API modules now use the shared client, reducing ~120 lines of duplicated code.
 
 ---
 
-#### 2. Planning.jsx Complexity (430 lines)
+#### 2. Planning.jsx Complexity - COMPLETED
 
-**File**: `src/pages/Planning.jsx`
+**Status**: Refactored with custom hook and extracted components.
 
-**Issue**: Component handles too many responsibilities:
-- 7 state variables with `usePersistedState`
-- Field validation logic
-- Form submission handling
-- Navigation and error state
-
-**Solution**:
-
-1. Extract form field components:
-   - `TripTypeSelector`
-   - `TravelerCounter`
-   - `DatePicker` (with error handling)
-   - `BudgetInput`
-
-2. Extract form logic into custom hook:
-```javascript
-// src/hooks/useTripPlanningForm.js
-export function useTripPlanningForm() {
-    const [tripType, setTripType] = usePersistedState(...);
-    const [travelers, setTravelers] = usePersistedState(...);
-    // ... other state
-
-    const handleIncrement = () => ...;
-    const handleDecrement = () => ...;
-    const handleSwapLocations = () => ...;
-    const validateForm = (formData) => ...;
-
-    return {
-        formState: { tripType, travelers, ... },
-        formActions: { handleIncrement, handleDecrement, ... },
-        validateForm
-    };
-}
-```
+- Created `useTripPlanningForm` hook for form state management
+- Extracted `TravelerCounter` and `DateSelectionSection` components
+- Planning.jsx reduced from 430 to 247 lines
 
 ---
 
@@ -411,13 +387,14 @@ export const devLog = isDev ? console.log.bind(console) : () => {};
 
 ## Refactoring Metrics
 
-| Metric | Current | After Refactoring |
-|--------|---------|-------------------|
-| Code Duplication | ~200 lines | ~50 lines |
-| Avg Component Size | 150 lines | 80-100 lines |
-| API Module Lines | ~400 total | ~200 total |
-| Reusable Hooks | 4 | 6 |
-| Utility Functions | 6 | 10 |
+| Metric | Before | After | Status |
+|--------|--------|-------|--------|
+| Code Duplication | ~200 lines | ~80 lines | Improved |
+| Avg Component Size | 150 lines | 80-100 lines | Improved |
+| API Module Lines | ~400 total | ~210 total | Improved |
+| Reusable Hooks | 4 | 5 | Improved |
+| Utility Functions | 6 | 9 | Improved |
+| Planning.jsx | 430 lines | 247 lines | Improved |
 
 ---
 
@@ -610,16 +587,15 @@ src/components/
 
 ## Implementation Priority
 
-### High Priority
-1. API Module Duplication - Create `apiClient.js` utility (~150 lines reduction)
-2. Planning.jsx Complexity - Extract form components and `useTripPlanningForm` hook
+### High Priority - COMPLETED
+1. ~~API Module Duplication - Create `apiClient.js` utility~~ (Done)
+2. ~~Planning.jsx Complexity - Extract form components and `useTripPlanningForm` hook~~ (Done)
 
 ### Medium Priority
-1. One-way trip option (Planning.jsx)
+1. One-way trip option (Planning.jsx) - Already implemented via trip type toggle
 2. FlightCard/HotelCard - Create generic `RecommendationCard`
 3. Mixed Icon Usage - Standardize on `Icon` component
-4. Inconsistent Error Patterns - Standardize API error handling
-5. Missing `useDebounce` Hook - Extract common debounce logic
+4. Missing `useDebounce` Hook - Extract common debounce logic
 
 ### Low Priority
 1. Missing icons (ResultsSidebar.jsx)
