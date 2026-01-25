@@ -1,160 +1,61 @@
-import { useState, useActionState, useEffect } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LocationAutocomplete from '../components/LocationAutocomplete';
-import { usePersistedState } from '../hooks/usePersistedState';
+import { TravelerCounter, DateSelectionSection } from '../components/planning';
+import { useTripPlanningForm } from '../hooks/useTripPlanningForm';
 import { ROUTES } from '../constants/routes';
-import {
-  ERROR_MESSAGES,
-  TRIP_CONFIG,
-  VALIDATORS
-} from '../constants/validation';
+import { ERROR_MESSAGES, TRIP_CONFIG } from '../constants/validation';
 import '../styles/pages/Planning.css';
 
 // Lazy load SVG icons to reduce initial bundle size
-// Vite will handle these efficiently and they'll be included in the Planning chunk
 const imgIconBack = new URL('../assets/images/icons/back.svg', import.meta.url).href;
-const imgIconMinus = new URL('../assets/images/icons/minus.svg', import.meta.url).href;
-const imgIconPlus = new URL('../assets/images/icons/plus.svg', import.meta.url).href;
 const imgIconRoute = new URL('../assets/images/icons/route.svg', import.meta.url).href;
 const imgIconLocation = new URL('../assets/images/icons/location.svg', import.meta.url).href;
 const imgIconSwap = new URL('../assets/images/icons/swap.svg', import.meta.url).href;
 const imgIconSwap2 = new URL('../assets/images/icons/swap2.svg', import.meta.url).href;
-const imgIconCalendar = new URL('../assets/images/icons/calendar.svg', import.meta.url).href;
-
-//TODO: Add option for one-way trips (hide return date)
-
 
 export default function Planning() {
   const navigate = useNavigate();
 
-  // Use persisted state for form fields (survives page refresh)
-  const [tripType, setTripType] = usePersistedState('trip-type', TRIP_CONFIG.TYPES.ROUNDTRIP);
-  const [travelers, setTravelers] = usePersistedState('trip-travelers', TRIP_CONFIG.TRAVELERS.DEFAULT);
-  const [departFrom, setDepartFrom] = usePersistedState('trip-departFrom', 'New York City');
-  const [arriveAt, setArriveAt] = usePersistedState('trip-arriveAt', 'Paris');
-  const [departDate, setDepartDate] = usePersistedState('trip-departDate', '');
-  const [returnDate, setReturnDate] = usePersistedState('trip-returnDate', '');
-  const [budget, setBudget] = usePersistedState('trip-budget', '');
+  // Use custom hook for form state management
+  const {
+    formState,
+    setters,
+    actions,
+    fieldErrors,
+    validateForm,
+    focusFirstError,
+  } = useTripPlanningForm();
 
-  // Field-level error state for validation feedback
-  const [fieldErrors, setFieldErrors] = useState({
-    departFrom: null,
-    arriveAt: null,
-    departDate: null,
-    returnDate: null,
-    budget: null
-  });
-
-  const handleIncrement = () => setTravelers(prev => Math.min(TRIP_CONFIG.TRAVELERS.MAX, prev + 1));
-  const handleDecrement = () => setTravelers(prev => Math.max(TRIP_CONFIG.TRAVELERS.MIN, prev - 1));
-
-  const handleSwapLocations = () => {
-    setDepartFrom(arriveAt);
-    setArriveAt(departFrom);
-  };
-  
   const [state, actionFunction, isPending] = useActionState(
-    handleSubmission,
-    {
-      error: null,
-      message: null
-    }
+    async (_prevState, formData) => {
+      const { hasError, tripData } = validateForm(formData);
+
+      if (hasError) {
+        return { error: ERROR_MESSAGES.INVALID.FORM_ERRORS, message: null };
+      }
+
+      console.log('Saving trip form data and navigating to results...');
+
+      try {
+        sessionStorage.setItem('tripFormData', JSON.stringify(tripData));
+      } catch (storageError) {
+        console.error('Failed to store form data in sessionStorage:', storageError);
+        return { error: 'Failed to save form data. Please try again.', message: null };
+      }
+
+      navigate(ROUTES.RESULTS);
+      return { error: null, message: 'Loading trip data...' };
+    },
+    { error: null, message: null }
   );
-
-  async function handleSubmission(_prevState, formData) {
-    // Extract form data
-    const travelers = formData.get('travelers');
-    const departFrom = formData.get('departFrom');
-    const arriveAt = formData.get('arriveAt');
-    const departDate = formData.get('departDate');
-    const returnDate = formData.get('returnDate');
-    const budget = formData.get('budget');
-    const currentTripType = formData.get('tripType') || tripType;
-
-    // Reset field errors
-    const errors = {
-      departFrom: null,
-      arriveAt: null,
-      departDate: null,
-      returnDate: null,
-      budget: null
-    };
-
-    let hasError = false;
-
-    // Validate form data using validation constants
-    errors.departFrom = VALIDATORS.required(departFrom, ERROR_MESSAGES.REQUIRED.DEPART_FROM);
-    if (errors.departFrom) hasError = true;
-
-    errors.arriveAt = VALIDATORS.required(arriveAt, ERROR_MESSAGES.REQUIRED.ARRIVE_AT);
-    if (errors.arriveAt) hasError = true;
-
-    errors.departDate = VALIDATORS.departDate(departDate);
-    if (errors.departDate) hasError = true;
-
-    errors.returnDate = VALIDATORS.returnDate(returnDate, departDate, currentTripType);
-    if (errors.returnDate) hasError = true;
-
-    errors.budget = VALIDATORS.budget(budget);
-    if (errors.budget) hasError = true;
-
-    // Update field errors state
-    setFieldErrors(errors);
-
-    // If there are errors, return early
-    if (hasError) {
-      return {
-        error: ERROR_MESSAGES.INVALID.FORM_ERRORS,
-        message: null
-      };
-    }
-
-    // Create trip data object
-    const tripData = {
-      tripType: currentTripType,
-      travelers: Number(travelers),
-      departFrom,
-      arriveAt,
-      departDate,
-      returnDate: currentTripType === TRIP_CONFIG.TYPES.ROUNDTRIP ? returnDate : null,
-      budget: Number(budget)
-    };
-
-    console.log('Saving trip form data and navigating to results...');
-
-    // Store form data in sessionStorage
-    try {
-      sessionStorage.setItem('tripFormData', JSON.stringify(tripData));
-    } catch (storageError) {
-      console.error('Failed to store form data in sessionStorage:', storageError);
-      return {
-        error: 'Failed to save form data. Please try again.',
-        message: null
-      };
-    }
-
-    // Navigate immediately to results page
-    // The Results page will handle progressive data loading
-    navigate(ROUTES.RESULTS);
-
-    return {
-      error: null,
-      message: 'Loading trip data...'
-    };
-  }
 
   // Focus first invalid field when errors occur
   useEffect(() => {
     if (state?.error) {
-      const firstErrorField = Object.keys(fieldErrors).find(key => fieldErrors[key]);
-      if (firstErrorField) {
-        const element = document.querySelector(`[name="${firstErrorField}"]`);
-        if (element) {
-          element.focus();
-        }
-      }
+      focusFirstError();
     }
-  }, [state?.error, fieldErrors]);
+  }, [state?.error, focusFirstError]);
 
   return (
     <div className="planning-page">
@@ -182,68 +83,38 @@ export default function Planning() {
             </div>
           )}
 
+          {/* Trip Type Toggle */}
           <div className="form-section">
             <label className="form-label" id="tripType-label">Trip Type</label>
             <div className="trip-type-toggle" role="group" aria-labelledby="tripType-label">
               <button
                 type="button"
-                className={`toggle-option ${tripType === TRIP_CONFIG.TYPES.ROUNDTRIP ? 'active' : ''}`}
-                onClick={() => setTripType(TRIP_CONFIG.TYPES.ROUNDTRIP)}
-                aria-pressed={tripType === TRIP_CONFIG.TYPES.ROUNDTRIP}
+                className={`toggle-option ${formState.tripType === TRIP_CONFIG.TYPES.ROUNDTRIP ? 'active' : ''}`}
+                onClick={() => setters.setTripType(TRIP_CONFIG.TYPES.ROUNDTRIP)}
+                aria-pressed={formState.tripType === TRIP_CONFIG.TYPES.ROUNDTRIP}
               >
                 Round Trip
               </button>
               <button
                 type="button"
-                className={`toggle-option ${tripType === 'oneway' ? 'active' : ''}`}
-                onClick={() => setTripType('oneway')}
-                aria-pressed={tripType === 'oneway'}
+                className={`toggle-option ${formState.tripType === 'oneway' ? 'active' : ''}`}
+                onClick={() => setters.setTripType('oneway')}
+                aria-pressed={formState.tripType === 'oneway'}
               >
                 One Way
               </button>
             </div>
-            <input type="hidden" name="tripType" value={tripType} />
+            <input type="hidden" name="tripType" value={formState.tripType} />
           </div>
 
-          <div className="form-section">
-            <label className="form-label" id="travelers-label">Number of Travelers</label>
-            <div className="counter-container" role="group" aria-labelledby="travelers-label">
-              <button
-                type="button"
-                className="counter-button"
-                onClick={handleDecrement}
-                aria-label="Decrease number of travelers"
-                aria-controls="travelers-value"
-              >
-                <img alt="" className="counter-icon" src={imgIconMinus} />
-              </button>
-              <div
-                id="travelers-value"
-                className="counter-value"
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                <span className="sr-only">Number of travelers: </span>
-                {travelers}
-              </div>
-              <input
-                type="hidden"
-                name="travelers"
-                value={travelers}
-              />
-              <button
-                type="button"
-                className="counter-button"
-                onClick={handleIncrement}
-                aria-label="Increase number of travelers"
-                aria-controls="travelers-value"
-              >
-                <img alt="" className="counter-icon" src={imgIconPlus} />
-              </button>
-            </div>
-          </div>
+          {/* Traveler Counter */}
+          <TravelerCounter
+            value={formState.travelers}
+            onIncrement={actions.handleIncrement}
+            onDecrement={actions.handleDecrement}
+          />
 
+          {/* Route Section - Locations */}
           <div className="route-section">
             <div className="route-header">
               <img alt="" className="route-icon" src={imgIconRoute} />
@@ -261,8 +132,8 @@ export default function Planning() {
                   <img alt="" className="input-icon" src={imgIconLocation} />
                   <LocationAutocomplete
                     name="departFrom"
-                    value={departFrom}
-                    onChange={setDepartFrom}
+                    value={formState.departFrom}
+                    onChange={setters.setDepartFrom}
                     placeholder="Enter departure city"
                     required
                     hasError={!!fieldErrors.departFrom}
@@ -279,7 +150,7 @@ export default function Planning() {
               <button
                 type="button"
                 className="swap-button"
-                onClick={handleSwapLocations}
+                onClick={actions.handleSwapLocations}
                 aria-label="Swap locations"
               >
                 <div className="swap-icon">
@@ -298,8 +169,8 @@ export default function Planning() {
                   <img alt="" className="input-icon" src={imgIconLocation} />
                   <LocationAutocomplete
                     name="arriveAt"
-                    value={arriveAt}
-                    onChange={setArriveAt}
+                    value={formState.arriveAt}
+                    onChange={setters.setArriveAt}
                     placeholder="Enter arrival city"
                     required
                     hasError={!!fieldErrors.arriveAt}
@@ -315,70 +186,17 @@ export default function Planning() {
             </div>
           </div>
 
-          <div className="date-grid">
-            <div className="form-section">
-              <label className="form-label" id="departDate-label">
-                Departure Date
-                <span aria-hidden="true"> *</span>
-                <span className="sr-only">required</span>
-              </label>
-              <div className="input-wrapper">
-                <img alt="" className="input-icon" src={imgIconCalendar} />
-                <input
-                  type="date"
-                  name="departDate"
-                  className={`date-input ${fieldErrors.departDate ? 'input-error' : ''}`}
-                  value={departDate}
-                  onChange={(e) => setDepartDate(e.target.value)}
-                  required
-                  aria-labelledby="departDate-label"
-                  aria-required="true"
-                  aria-invalid={!!fieldErrors.departDate}
-                  aria-describedby={fieldErrors.departDate ? 'departDate-error' : undefined}
-                />
-              </div>
-              {fieldErrors.departDate && (
-                <span id="departDate-error" className="field-error-message" role="alert">
-                  {fieldErrors.departDate}
-                </span>
-              )}
-            </div>
+          {/* Date Selection */}
+          <DateSelectionSection
+            tripType={formState.tripType}
+            departDate={formState.departDate}
+            returnDate={formState.returnDate}
+            onDepartDateChange={setters.setDepartDate}
+            onReturnDateChange={setters.setReturnDate}
+            fieldErrors={fieldErrors}
+          />
 
-            {tripType === TRIP_CONFIG.TYPES.ROUNDTRIP && (
-              <div className="form-section">
-                <label className="form-label" id="returnDate-label">
-                  Return Date
-                  <span aria-hidden="true"> *</span>
-                  <span className="sr-only">required</span>
-                </label>
-                <div className="input-wrapper">
-                  <img alt="" className="input-icon" src={imgIconCalendar} />
-                  <input
-                    type="date"
-                    name="returnDate"
-                    className={`date-input ${fieldErrors.returnDate ? 'input-error' : ''}`}
-                    value={returnDate}
-                    onChange={(e) => setReturnDate(e.target.value)}
-                    required
-                    aria-labelledby="returnDate-label"
-                    aria-required="true"
-                    aria-invalid={!!fieldErrors.returnDate}
-                    aria-describedby={fieldErrors.returnDate ? 'returnDate-error' : undefined}
-                  />
-                </div>
-                {fieldErrors.returnDate && (
-                  <span id="returnDate-error" className="field-error-message" role="alert">
-                    {fieldErrors.returnDate}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {tripType === 'oneway' && (
-              <input type="hidden" name="returnDate" value="" />
-            )}
-          </div>
-
+          {/* Budget Section */}
           <div className="form-section">
             <label className="form-label" id="budget-label">
               Budget (USD)
@@ -391,8 +209,8 @@ export default function Planning() {
                 type="number"
                 name="budget"
                 className={`budget-input ${fieldErrors.budget ? 'input-error' : ''}`}
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
+                value={formState.budget}
+                onChange={(e) => setters.setBudget(e.target.value)}
                 placeholder="Enter budget"
                 min="0"
                 required
