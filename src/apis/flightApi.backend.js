@@ -4,6 +4,8 @@
  * API Documentation: https://developers.amadeus.com/
  */
 
+import { apiPost, apiGet, withErrorHandling } from '../utils/apiClient.js';
+
 /**
  * Fetch flight data from secure backend endpoint
  * @param {Object} tripData - Trip planning data
@@ -15,44 +17,19 @@
  * @returns {Promise<Object>} Flight search results
  */
 export async function fetchFlightData(tripData) {
-    try {
-        console.log('Calling secure backend for flights...');
-
-        // ✅ NO API KEY in frontend code - calling secure backend
-        const response = await fetch('/api/flights', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                departFrom: tripData.departFrom,
-                arriveAt: tripData.arriveAt,
-                departDate: tripData.departDate,
-                returnDate: tripData.returnDate,
-                travelers: tripData.travelers
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Backend error: ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (!result.success) {
-            throw new Error(result.error || 'Failed to fetch flights');
-        }
-
-        return result.data;
-
-    } catch (error) {
-        console.error('Error fetching flight data:', error);
-        return {
-            success: false,
-            error: error.message
-        };
-    }
+  return withErrorHandling(
+    () => apiPost('/api/flights', {
+      departFrom: tripData.departFrom,
+      arriveAt: tripData.arriveAt,
+      departDate: tripData.departDate,
+      returnDate: tripData.returnDate,
+      travelers: tripData.travelers,
+    }, {
+      serviceName: 'flights',
+      errorMessage: 'Failed to fetch flights',
+    }),
+    'flight'
+  );
 }
 
 /**
@@ -61,40 +38,25 @@ export async function fetchFlightData(tripData) {
  * @returns {Promise<Array>} Array of location suggestions
  */
 export async function searchCityAirports(keyword) {
-    try {
-        const normalized = keyword.trim();
+  const normalized = keyword.trim();
 
-        // Don't search for very short queries
-        if (normalized.length < 2) {
-            return [];
-        }
+  // Don't search for very short queries
+  if (normalized.length < 2) {
+    return [];
+  }
 
-        console.log('Calling secure backend for city search...');
-
-        // ✅ Call secure backend endpoint
-        const response = await fetch(`/api/city-search?keyword=${encodeURIComponent(normalized)}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        if (!response.ok) {
-            console.error('City search failed:', response.status);
-            return [];
-        }
-
-        const result = await response.json();
-
-        if (!result.success) {
-            console.error('City search error:', result.error);
-            return [];
-        }
-
-        return result.data || [];
-
-    } catch (error) {
-        console.error('Error searching locations:', error);
-        return [];
-    }
+  try {
+    const data = await apiGet(
+      `/api/city-search?keyword=${encodeURIComponent(normalized)}`,
+      {
+        serviceName: 'city search',
+        errorMessage: 'Failed to search cities',
+        returnEmptyOnError: true,
+      }
+    );
+    return data || [];
+  } catch (error) {
+    console.error('Error searching locations:', error);
+    return [];
+  }
 }

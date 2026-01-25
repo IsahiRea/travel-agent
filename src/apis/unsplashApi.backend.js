@@ -3,6 +3,8 @@
  * Handles Unsplash photo API calls via secure backend
  */
 
+import { apiGet } from '../utils/apiClient.js';
+
 /**
  * Search for destination photos on Unsplash via secure backend
  * @param {string} query - Search query (e.g., "travel destination", "paris", "beach")
@@ -11,29 +13,15 @@
  */
 export async function searchDestinationPhotos(query, count = 3) {
   try {
-    console.log('Calling secure backend for Unsplash photos...');
-
-    // ✅ NO API KEY in frontend code - calling secure backend
-    const response = await fetch(`/api/unsplash?query=${encodeURIComponent(query)}&count=${count}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    const data = await apiGet(
+      `/api/unsplash?query=${encodeURIComponent(query)}&count=${count}`,
+      {
+        serviceName: 'Unsplash photos',
+        errorMessage: 'Failed to fetch photos',
+        returnEmptyOnError: true,
       }
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Backend error: ${response.status}`);
-    }
-
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.error || 'Failed to fetch photos');
-    }
-
-    return result.data;
-
+    );
+    return data || [];
   } catch (error) {
     console.error('Failed to fetch Unsplash photos:', error);
     return [];
