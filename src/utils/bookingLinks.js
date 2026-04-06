@@ -133,7 +133,7 @@ export function generateHotelBookingLink(hotel, tripData) {
 export function trackBookingClick(type, data) {
   try {
     // Track click with Google Analytics if available
-    if (typeof window !== 'undefined' && typeof window.gtag !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
       window.gtag('event', `${type}_booking_click`, {
         [type]: data.name || data.airline || 'unknown',
         cost: data.totalCost || 0
