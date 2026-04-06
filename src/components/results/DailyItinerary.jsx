@@ -25,8 +25,8 @@ export default function DailyItinerary({ itinerary }) {
 
           <div className="activities-section">
             <h4 className="subsection-title">Activities</h4>
-            {day.activities.map((activity, idx) => (
-              <div key={idx} className="activity-item">
+            {day.activities.map((activity) => (
+              <div key={`${activity.time}-${activity.name}`} className="activity-item">
                 <div className="activity-header">
                   <span className="activity-time">{activity.time}</span>
                   <span className="activity-cost">${activity.estimatedCost}</span>
@@ -43,8 +43,8 @@ export default function DailyItinerary({ itinerary }) {
           <div className="meals-section">
             <h4 className="subsection-title">Meals</h4>
             <div className="meals-grid">
-              {day.meals.map((meal, idx) => (
-                <div key={idx} className="meal-item">
+              {day.meals.map((meal) => (
+                <div key={`${day.day}-${meal.type}`} className="meal-item">
                   <span className="meal-type">{meal.type}</span>
                   <span className="meal-name">{meal.suggestion}</span>
                   <span className="meal-cuisine">{meal.cuisine}</span>
