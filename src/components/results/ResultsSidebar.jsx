@@ -3,7 +3,7 @@ import heroEiffel from '../../assets/images/photos/hero-eiffel.jpg';
 import { formatDate } from '../../utils/formatters';
 import '../../styles/components/ResultsSidebar.css';
 
-export default function ResultsSidebar({ tripData, displayPlan, activeSection }) {
+export default function ResultsSidebar({ tripData, displayPlan, activeSection, destinationImage }) {
   if (!tripData || !displayPlan) return null;
 
   // Calculate trip duration
@@ -33,9 +33,12 @@ export default function ResultsSidebar({ tripData, displayPlan, activeSection })
       {/* Compact Hero Image */}
       <div className="hero-banner-sidebar">
         <img
-          src={heroEiffel}
-          alt={displayPlan.destination || tripData.arriveAt}
+          src={destinationImage?.url || heroEiffel}
+          alt={destinationImage?.alt || displayPlan.destination || tripData.arriveAt}
           className="hero-image-sidebar"
+          onError={(e) => {
+            e.target.src = heroEiffel;
+          }}
         />
         <div className="hero-overlay-sidebar" />
         <div className="hero-content-sidebar">

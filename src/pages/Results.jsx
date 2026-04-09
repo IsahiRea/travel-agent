@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useProgressiveTripData } from '../hooks/useProgressiveTripData';
 import { useActiveSection } from '../hooks/useActiveSection';
 import { useSmoothScroll } from '../hooks/useSmoothScroll';
+import { searchDestinationPhotos, triggerUnsplashDownload } from '../api';
 import LoadingProgress from '../components/LoadingProgress';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import ErrorDisplay from '../components/ErrorDisplay';
@@ -47,6 +48,27 @@ export default function Results() {
       navigate(ROUTES.PLANNING);
     }
   }, [navigate]);
+
+  // Fetch destination image from Unsplash
+  const [destinationImage, setDestinationImage] = useState(null);
+  useEffect(() => {
+    if (!tripData?.arriveAt) return;
+
+    let cancelled = false;
+    async function fetchImage() {
+      try {
+        const photos = await searchDestinationPhotos(`${tripData.arriveAt} travel landmark`, 1);
+        if (!cancelled && photos?.length > 0) {
+          setDestinationImage(photos[0]);
+          triggerUnsplashDownload(photos[0].downloadUrl);
+        }
+      } catch (err) {
+        console.error('Error loading destination image:', err);
+      }
+    }
+    fetchImage();
+    return () => { cancelled = true; };
+  }, [tripData?.arriveAt]);
 
   // Use progressive loading hook with streaming support
   const { stage, sections, data, error, retry, retrySection, streamingProgress } = useProgressiveTripData(tripData);
@@ -103,6 +125,7 @@ export default function Results() {
           tripData={tripData}
           displayPlan={displayPlan}
           activeSection={activeSection}
+          destinationImage={destinationImage}
         />
 
         {/* Main Content */}
@@ -115,6 +138,7 @@ export default function Results() {
                   destination={displayPlan.destination}
                   tripData={tripData}
                   isStreaming={!!streamingPartialPlan && !tripPlan}
+                  destinationImage={destinationImage}
                 />
                 <TripInfoCards tripData={tripData} />
               </>

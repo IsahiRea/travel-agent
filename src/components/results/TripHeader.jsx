@@ -1,56 +1,20 @@
-import { useState, useEffect } from 'react';
 import Icon from '../Icon';
 import { formatDate } from '../../utils/formatters';
-import { searchDestinationPhotos, triggerUnsplashDownload } from '../../api.js';
 import imgHeroEiffel from '../../assets/images/photos/hero-eiffel.jpg';
 import '../../styles/components/TripHeader.css';
 
-export default function TripHeader({ destination, tripData, isStreaming }) {
-  const [heroImage, setHeroImage] = useState(null);
-  const [isLoadingImage, setIsLoadingImage] = useState(true);
-
-  // Fetch destination-specific image from Unsplash
-  useEffect(() => {
-    async function fetchDestinationImage() {
-      if (!tripData?.arriveAt) {
-        setIsLoadingImage(false);
-        return;
-      }
-
-      setIsLoadingImage(true);
-
-      try {
-        const photos = await searchDestinationPhotos(`${tripData.arriveAt} travel landmark`, 1);
-
-        if (photos && photos.length > 0) {
-          setHeroImage(photos[0]);
-          // Trigger download endpoint as per Unsplash guidelines
-          triggerUnsplashDownload(photos[0].downloadUrl);
-        }
-      } catch (error) {
-        console.error('Error loading destination image:', error);
-      } finally {
-        setIsLoadingImage(false);
-      }
-    }
-
-    fetchDestinationImage();
-  }, [tripData?.arriveAt]);
-
-  // Use Unsplash image if available, otherwise fallback to local
-  const displayImage = heroImage?.url || imgHeroEiffel;
-  const displayAlt = heroImage?.alt || destination || tripData?.arriveAt || 'Your destination';
+export default function TripHeader({ destination, tripData, isStreaming, destinationImage }) {
+  const displayImage = destinationImage?.url || imgHeroEiffel;
+  const displayAlt = destinationImage?.alt || destination || tripData?.arriveAt || 'Your destination';
 
   return (
     <div className="hero-banner">
-      {isLoadingImage && <div className="hero-image-skeleton" />}
       <img
         alt={displayAlt}
         className="hero-image"
         src={displayImage}
         loading="eager"
         onError={(e) => {
-          // Fallback if image fails to load
           e.target.src = imgHeroEiffel;
         }}
       />
@@ -87,15 +51,15 @@ export default function TripHeader({ destination, tripData, isStreaming }) {
       </div>
 
       {/* Unsplash Attribution (required by Unsplash API guidelines) */}
-      {heroImage && (
+      {destinationImage && (
         <div className="photo-credit">
           Photo by{' '}
           <a
-            href={`${heroImage.photographerUrl}?utm_source=travel-agent&utm_medium=referral`}
+            href={`${destinationImage.photographerUrl}?utm_source=travel-agent&utm_medium=referral`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {heroImage.photographer}
+            {destinationImage.photographer}
           </a>
           {' '}on{' '}
           <a
