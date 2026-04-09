@@ -6,6 +6,7 @@ import { useSmoothScroll } from '../hooks/useSmoothScroll';
 import LoadingProgress from '../components/LoadingProgress';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import ErrorDisplay from '../components/ErrorDisplay';
+import SectionError from '../components/SectionError';
 import Icon from '../components/Icon';
 import ResultsSidebar from '../components/results/ResultsSidebar';
 import TripHeader from '../components/results/TripHeader';
@@ -48,9 +49,9 @@ export default function Results() {
   }, [navigate]);
 
   // Use progressive loading hook with streaming support
-  const { stage, data, error, retry, streamingProgress } = useProgressiveTripData(tripData);
+  const { stage, sections, data, error, retry, retrySection, streamingProgress } = useProgressiveTripData(tripData);
 
-  // Show error state
+  // Show full-page error only when all data sources fail
   if (error) {
     return (
       <div className="results-page">
@@ -70,15 +71,13 @@ export default function Results() {
     );
   }
 
-  // Extract data from progressive loading
-  const weatherData = data.weather;
-  const flightData = data.flights;
-  const hotelData = data.hotels;
   const tripPlan = data.plan;
 
   // Use partial streaming data if available and full plan not yet loaded
   const streamingPartialPlan = streamingProgress?.partialData;
   const displayPlan = tripPlan || streamingPartialPlan;
+
+  const isAI = stage === 'ai';
 
   return (
     <div className="results-page">
@@ -95,7 +94,7 @@ export default function Results() {
 
       {/* Show loading progress while data is being fetched */}
       {stage !== 'complete' && (
-        <LoadingProgress currentStage={stage} streamingProgress={streamingProgress} />
+        <LoadingProgress currentStage={stage} sections={sections} streamingProgress={streamingProgress} />
       )}
 
       <div className="trip-details">
@@ -122,10 +121,17 @@ export default function Results() {
             )}
           </div>
 
-          {/* Weather Section - Show skeleton while loading */}
+          {/* Weather Section */}
           <div className="full-width-section">
-            {!weatherData && stage !== 'complete' && stage !== 'initializing' && (
+            {sections.weather.status === 'loading' && (
               <LoadingSkeleton type="weather" />
+            )}
+            {sections.weather.status === 'error' && (
+              <SectionError
+                section="weather"
+                message={sections.weather.error}
+                onRetry={() => retrySection('weather')}
+              />
             )}
             {displayPlan?.rawWeatherData && (
               <WeatherCard weatherData={displayPlan.rawWeatherData} />
@@ -134,10 +140,17 @@ export default function Results() {
 
           {/* Flight & Hotel Cards Grid - 2 columns on desktop */}
           <div className="cards-grid">
-            {/* Flight Section - Show skeleton while loading */}
+            {/* Flight Section */}
             <div id="flights">
-              {!flightData && (stage === 'flights' || (stage !== 'complete' && stage !== 'initializing' && stage !== 'weather')) && (
+              {sections.flights.status === 'loading' && (
                 <LoadingSkeleton type="flight" />
+              )}
+              {sections.flights.status === 'error' && (
+                <SectionError
+                  section="flights"
+                  message={sections.flights.error}
+                  onRetry={() => retrySection('flights')}
+                />
               )}
               {displayPlan?.selectedFlight && (
                 <FlightCard
@@ -148,10 +161,17 @@ export default function Results() {
               )}
             </div>
 
-            {/* Hotel Section - Show skeleton while loading */}
+            {/* Hotel Section */}
             <div id="hotels">
-              {!hotelData && (stage === 'hotels' || (stage !== 'complete' && stage !== 'initializing' && stage !== 'weather' && stage !== 'flights')) && (
+              {sections.hotels.status === 'loading' && (
                 <LoadingSkeleton type="hotel" />
+              )}
+              {sections.hotels.status === 'error' && (
+                <SectionError
+                  section="hotels"
+                  message={sections.hotels.error}
+                  onRetry={() => retrySection('hotels')}
+                />
               )}
               {displayPlan?.selectedHotel && (
                 <HotelCard
@@ -164,7 +184,7 @@ export default function Results() {
           </div>
 
           {/* Itinerary Section - Show skeleton while loading if no partial data */}
-          {!displayPlan && stage === 'ai' && (
+          {!displayPlan && isAI && (
             <LoadingSkeleton type="itinerary" />
           )}
 
@@ -173,6 +193,17 @@ export default function Results() {
             <div className="streaming-message">
               <div className="streaming-dot-pulse"></div>
               Generating daily itinerary... ({streamingPartialPlan.dailyItineraryCount} days in progress)
+            </div>
+          )}
+
+          {/* AI Plan Error */}
+          {sections.plan.status === 'error' && (
+            <div className="full-width-section">
+              <SectionError
+                section="plan"
+                message={sections.plan.error}
+                onRetry={() => retrySection('plan')}
+              />
             </div>
           )}
 

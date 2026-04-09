@@ -115,6 +115,12 @@
   background: var(--color-background-lighter);
 }
 
+.progress-stage.failed {
+  background: rgba(212, 165, 116, 0.1);
+  border-color: rgba(212, 165, 116, 0.5);
+  opacity: 0.8;
+}
+
 .stage-icon {
   display: flex;
   align-items: center;

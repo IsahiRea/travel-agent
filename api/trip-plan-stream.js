@@ -166,6 +166,9 @@ function prepareAIContext(weather, flights, hotels, tripData) {
       context += `\n`;
     });
     context += `\n`;
+  } else {
+    context += `WEATHER FORECAST:\n`;
+    context += `Weather data was unavailable. Provide general weather-appropriate recommendations for ${arriveAt} during this season based on your knowledge.\n\n`;
   }
 
   // Add flight options
@@ -179,6 +182,9 @@ function prepareAIContext(weather, flights, hotels, tripData) {
       }
     });
     context += `\n`;
+  } else {
+    context += `AVAILABLE FLIGHTS:\n`;
+    context += `Flight data was unavailable. Estimate typical flight costs for ${departFrom} → ${arriveAt} and provide general flight recommendations.\n\n`;
   }
 
   // Add hotel options
@@ -192,6 +198,9 @@ function prepareAIContext(weather, flights, hotels, tripData) {
       }
     });
     context += `\n`;
+  } else {
+    context += `AVAILABLE HOTELS:\n`;
+    context += `Hotel data was unavailable. Estimate typical accommodation costs in ${arriveAt} and recommend a reasonable hotel option within the budget.\n\n`;
   }
 
   context += `REQUIREMENTS:\n`;

@@ -1,0 +1,70 @@
+.section-error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: var(--color-bg-secondary, #faf7f5);
+  border: 1px solid #e8d5c4;
+  border-radius: var(--radius-md, 8px);
+  border-left: 4px solid #d4a574;
+}
+
+.section-error-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.section-error-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-error-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #2d2d2d);
+}
+
+.section-error-message {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.section-error-retry {
+  flex-shrink: 0;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-white, #fff);
+  background-color: #4a90e2;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.section-error-retry:hover {
+  background-color: #357abd;
+}
+
+@media (max-width: 640px) {
+  .section-error {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .section-error-message {
+    white-space: normal;
+  }
+
+  .section-error-retry {
+    width: 100%;
+    text-align: center;
+  }
+}
