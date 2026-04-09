@@ -3,7 +3,7 @@ import { generateHotelBookingLink, trackBookingClick } from '../../utils/booking
 import imgHotelRoom from '../../assets/images/photos/hotel-room.jpg';
 import '../../styles/components/RecommendationCard.css';
 
-export default function HotelCard({ hotel, tripData, isStreaming }) {
+export default function HotelCard({ hotel, tripData, isStreaming, cardImage }) {
   const handleBookingClick = () => {
     if (!hotel || !tripData) return;
 
@@ -20,7 +20,12 @@ export default function HotelCard({ hotel, tripData, isStreaming }) {
   return (
     <div className="recommendation-card">
       <div className="rec-image-container">
-        <img alt="Hotel" className="rec-image" src={imgHotelRoom} />
+        <img
+          alt={cardImage?.alt || 'Hotel'}
+          className="rec-image"
+          src={cardImage?.url || imgHotelRoom}
+          onError={(e) => { e.target.src = imgHotelRoom; }}
+        />
         <div className="rec-overlay" />
         <div className="rec-badge rating">{hotel.rating}★ Rating</div>
         {isStreaming && (

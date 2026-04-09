@@ -70,8 +70,55 @@ export default function Results() {
     return () => { cancelled = true; };
   }, [tripData?.arriveAt]);
 
+  // Fetch flight and hotel images once the AI plan is available
+  const [flightImage, setFlightImage] = useState(null);
+  const [hotelImage, setHotelImage] = useState(null);
+
   // Use progressive loading hook with streaming support
   const { stage, sections, data, error, retry, retrySection, streamingProgress } = useProgressiveTripData(tripData);
+
+  // Fetch flight/hotel images when the plan resolves
+  const plan = data.plan;
+  useEffect(() => {
+    if (!plan) return;
+    let cancelled = false;
+
+    async function fetchCardImages() {
+      const destination = plan.destination || tripData?.arriveAt;
+      const promises = [];
+
+      if (plan.selectedFlight?.airline) {
+        promises.push(
+          searchDestinationPhotos(`${plan.selectedFlight.airline} airplane`, 1)
+            .then(photos => {
+              if (!cancelled && photos?.length > 0) {
+                setFlightImage(photos[0]);
+                triggerUnsplashDownload(photos[0].downloadUrl);
+              }
+            })
+            .catch(() => {})
+        );
+      }
+
+      if (plan.selectedHotel?.name) {
+        promises.push(
+          searchDestinationPhotos(`${plan.selectedHotel.name} hotel ${destination}`, 1)
+            .then(photos => {
+              if (!cancelled && photos?.length > 0) {
+                setHotelImage(photos[0]);
+                triggerUnsplashDownload(photos[0].downloadUrl);
+              }
+            })
+            .catch(() => {})
+        );
+      }
+
+      await Promise.all(promises);
+    }
+
+    fetchCardImages();
+    return () => { cancelled = true; };
+  }, [plan, tripData?.arriveAt]);
 
   // Show full-page error only when all data sources fail
   if (error) {
@@ -93,11 +140,9 @@ export default function Results() {
     );
   }
 
-  const tripPlan = data.plan;
-
   // Use partial streaming data if available and full plan not yet loaded
   const streamingPartialPlan = streamingProgress?.partialData;
-  const displayPlan = tripPlan || streamingPartialPlan;
+  const displayPlan = plan || streamingPartialPlan;
 
   const isAI = stage === 'ai';
 
@@ -137,7 +182,7 @@ export default function Results() {
                 <TripHeader
                   destination={displayPlan.destination}
                   tripData={tripData}
-                  isStreaming={!!streamingPartialPlan && !tripPlan}
+                  isStreaming={!!streamingPartialPlan && !plan}
                   destinationImage={destinationImage}
                 />
                 <TripInfoCards tripData={tripData} />
@@ -180,7 +225,8 @@ export default function Results() {
                 <FlightCard
                   flight={displayPlan.selectedFlight}
                   tripData={tripData}
-                  isStreaming={!!streamingPartialPlan && !tripPlan}
+                  isStreaming={!!streamingPartialPlan && !plan}
+                  cardImage={flightImage}
                 />
               )}
             </div>
@@ -201,7 +247,8 @@ export default function Results() {
                 <HotelCard
                   hotel={displayPlan.selectedHotel}
                   tripData={tripData}
-                  isStreaming={!!streamingPartialPlan && !tripPlan}
+                  isStreaming={!!streamingPartialPlan && !plan}
+                  cardImage={hotelImage}
                 />
               )}
             </div>
@@ -213,7 +260,7 @@ export default function Results() {
           )}
 
           {/* Show streaming indicator for itinerary if generating */}
-          {streamingPartialPlan && !tripPlan && streamingPartialPlan.dailyItineraryCount > 0 && (
+          {streamingPartialPlan && !plan && streamingPartialPlan.dailyItineraryCount > 0 && (
             <div className="streaming-message">
               <div className="streaming-dot-pulse"></div>
               Generating daily itinerary... ({streamingPartialPlan.dailyItineraryCount} days in progress)

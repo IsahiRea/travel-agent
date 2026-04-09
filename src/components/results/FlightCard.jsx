@@ -3,7 +3,7 @@ import { generateFlightBookingLink, trackBookingClick } from '../../utils/bookin
 import imgFlightWing from '../../assets/images/photos/flight-wing.jpg';
 import '../../styles/components/RecommendationCard.css';
 
-export default function FlightCard({ flight, tripData, isStreaming }) {
+export default function FlightCard({ flight, tripData, isStreaming, cardImage }) {
   const handleBookingClick = () => {
     if (!flight || !tripData) return;
 
@@ -20,7 +20,12 @@ export default function FlightCard({ flight, tripData, isStreaming }) {
   return (
     <div className="recommendation-card">
       <div className="rec-image-container">
-        <img alt="Flight" className="rec-image" src={imgFlightWing} />
+        <img
+          alt={cardImage?.alt || 'Flight'}
+          className="rec-image"
+          src={cardImage?.url || imgFlightWing}
+          onError={(e) => { e.target.src = imgFlightWing; }}
+        />
         <div className="rec-overlay" />
         <div className="rec-badge best-deal">Best Value</div>
         {isStreaming && (
